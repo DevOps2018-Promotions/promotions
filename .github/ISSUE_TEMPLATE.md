@@ -1,15 +1,10 @@
-Expected Behavior
-{Please write here}
+**As a** ...  
+**I need** ...  
+**So that** ...  
 
-Actual Behavior
-{Please write here}
+**Assumptions**:  
+-  
+-  
 
-Steps to Reproduce (including precondition)
-{Please write here}
+**Acceptance Criteria**: 
 
-Screenshot on This Problem (if possible)
-{Please write here}
-
-Environment
-OS: {Please write here}
-dot-github version: {Please write here}
