@@ -53,8 +53,8 @@ class Promotion(db.Model):
     promotion_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
     product_id = db.Column(db.Integer)
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
+    # start_date = db.Column(db.DateTime)
+    # end_date = db.Column(db.DateTime)
 
     def __repr__(self):
         return '<Promotion %r>' % self.name
@@ -76,9 +76,7 @@ class Promotion(db.Model):
         """ Serializes a Promotion into a dictionary """
         return {"id": self.promotion_id,
                 "name": self.name,
-                "product_id": self.product_id,
-                "start_date": self.start_date,
-                "end_date": self.end_date}
+                "product_id": self.product_id}
 
     def deserialize(self, data):
         """
@@ -93,8 +91,8 @@ class Promotion(db.Model):
             self.promotion_id = data['promotion_id']
             self.name = data['name']
             self.product_id = data['product_id']
-            self.start_date = data['start_date']
-            self.end_date = data['end_date']
+            # self.start_date = data['start_date']
+            # self.end_date = data['end_date']
         except KeyError as error:
             raise DataValidationError('Invalid promotion: missing ' + error.args[0])
         except TypeError as error:
