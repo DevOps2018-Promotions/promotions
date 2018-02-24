@@ -107,9 +107,9 @@ def internal_server_error(error):
 @app.route('/')
 def index():
     """ Root URL response """
-    return jsonify(name='Promotion API Service',
+    return jsonify(name='Promotion RESTful API Service',
                    version='1.0',
-                   paths=url_for('list_pets', _external=True)), status.HTTP_200_OK
+                   paths=url_for('list_promotions', _external=True)), status.HTTP_200_OK
 
 ######################################################################
 # LIST ALL PROMOTIONS
@@ -169,7 +169,7 @@ def create_promotions():
     promotion = Promotion()
     promotion.deserialize(request.get_json())
     promotion.save()
-    message = promotions.serialize()
+    message = promotion.serialize()
     location_url = url_for('get_promotions', promotion_id=promotion.promotion_id, _external=True)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
                          {
