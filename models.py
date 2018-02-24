@@ -33,13 +33,15 @@ from flask_sqlalchemy import SQLAlchemy
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
+
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
 
-class Pet(db.Model):
+
+class Promotion(db.Model):
     """
-    Class that represents a Pet
+    Class that represents a Promotion
 
     This version uses a relational database for persistence which is hidden
     from us by SQLAlchemy's object relational mappings (ORM)
@@ -48,59 +50,63 @@ class Pet(db.Model):
     app = None
 
     # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
+    promotion_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
-    category = db.Column(db.String(63))
-    available = db.Column(db.Boolean())
+    product_id = db.Column(db.Integer)
+    discount_ratio = db.Column(db.Float)
+    # start_date = db.Column(db.DateTime)
+    # end_date = db.Column(db.DateTime)
 
     def __repr__(self):
-        return '<Pet %r>' % (self.name)
+        return '<Promotion %r>' % self.name
 
     def save(self):
         """
-        Saves a Pet to the data store
+        Saves a Promotion to the data store
         """
-        if not self.id:
+        if not self.promotion_id:
             db.session.add(self)
         db.session.commit()
 
     def delete(self):
-        """ Removes a Pet from the data store """
+        """ Removes a Promotion from the data store """
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
-        """ Serializes a Pet into a dictionary """
-        return {"id": self.id,
+        """ Serializes a Promotion into a dictionary """
+        return {"promotion_id": self.promotion_id,
                 "name": self.name,
-                "category": self.category,
-                "available": self.available}
+                "product_id": self.product_id,
+                "discount_ratio": self.discount_ratio}
 
     def deserialize(self, data):
         """
-        Deserializes a Pet from a dictionary
+        Deserializes a Promotion from a dictionary
 
         Args:
-            data (dict): A dictionary containing the Pet data
+            data (dict): A dictionary containing the Promotion data
         """
         if not isinstance(data, dict):
             raise DataValidationError('Invalid pet: body of request contained bad or no data')
         try:
             self.name = data['name']
-            self.category = data['category']
-            self.available = data['available']
+            self.product_id = data['product_id']
+            self.discount_ratio = data['discount_ratio']
+            # self.start_date = data['start_date']
+            # self.end_date = data['end_date']
         except KeyError as error:
-            raise DataValidationError('Invalid pet: missing ' + error.args[0])
+            raise DataValidationError('Invalid promotion: missing ' + error.args[0])
         except TypeError as error:
-            raise DataValidationError('Invalid pet: body of request contained' \
+            raise DataValidationError('Invalid promotion: body of request contained' \
                                       'bad or no data')
         return self
 
     @staticmethod
     def init_db(app):
         """ Initializes the database session """
-        Pet.logger.info('Initializing database')
-        Pet.app = app
+        Promotion.logger.info('Initializing database')
+        Promotion.app = app
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
         app.app_context().push()
@@ -108,49 +114,48 @@ class Pet(db.Model):
 
     @staticmethod
     def all():
-        """ Returns all of the Pets in the database """
-        Pet.logger.info('Processing all Pets')
-        return Pet.query.all()
+        """ Returns all of the Promotions in the database """
+        Promotion.logger.info('Processing all Promotions')
+        return Promotion.query.all()
 
     @staticmethod
-    def find(pet_id):
-        """ Finds a Pet by it's ID """
-        Pet.logger.info('Processing lookup for id %s ...', pet_id)
-        return Pet.query.get(pet_id)
+    def find(promotion_id):
+        """ Finds a Promotions by it's ID """
+        Promotion.logger.info('Processing lookup for id %s ...', promotion_id)
+        return Promotion.query.get(promotion_id)
 
     @staticmethod
-    def find_or_404(pet_id):
-        """ Find a Pet by it's id """
-        Pet.logger.info('Processing lookup or 404 for id %s ...', pet_id)
-        return Pet.query.get_or_404(pet_id)
+    def find_or_404(promotion_id):
+        """ Find a promotion_id by it's id """
+        Promotion.logger.info('Processing lookup or 404 for id %s ...', promotion_id)
+        return Promotion.query.get_or_404(promotion_id)
 
     @staticmethod
     def find_by_name(name):
-        """ Returns all Pets with the given name
+        """ Returns all Promotions with the given name
 
         Args:
-            name (string): the name of the Pets you want to match
+            name (string): the name of the Promotions you want to match
         """
-        Pet.logger.info('Processing name query for %s ...', name)
-        return Pet.query.filter(Pet.name == name)
+        Promotion.logger.info('Processing name query for %s ...', name)
+        return Promotion.query.filter(Promotion.name == name)
 
     @staticmethod
-    def find_by_category(category):
-        """ Returns all of the Pets in a category
+    def find_by_product_id(product_id):
+        """ Returns all Promotions of a specific product
 
         Args:
-            category (string): the category of the Pets you want to match
+            product_id (Integer): product id of the Promotions you want to match
         """
-        Pet.logger.info('Processing category query for %s ...', category)
-        return Pet.query.filter(Pet.category == category)
+        Promotion.logger.info('Processing product_id query for %s ...', product_id)
+        return Promotion.query.filter(Promotion.product_id == product_id)
 
     @staticmethod
-    def find_by_availability(available=True):
-        """ Query that finds Pets by their availability """
-        """ Returns all Pets by their availability
+    def find_by_discount_ratio(discount_ratio):
+        """ Returns all Promotions of a specific product
 
         Args:
-            available (boolean): True for pets that are available
+            discount_ratio (Float): product id of the Promotions you want to match
         """
-        Pet.logger.info('Processing available query for %s ...', available)
-        return Pet.query.filter(Pet.available == available)
+        Promotion.logger.info('Processing product_id query for %s ...', discount_ratio)
+        return Promotion.query.filter(Promotion.discount_ratio == discount_ratio)

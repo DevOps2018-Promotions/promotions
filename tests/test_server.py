@@ -13,12 +13,13 @@
 # limitations under the License.
 
 """
-Pet API Service Test Suite
+Promotion API Service Test Suite
 
 Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
+
 
 import unittest
 import os
@@ -27,7 +28,7 @@ import logging
 from flask_api import status    # HTTP Status Codes
 from mock import MagicMock, patch
 
-from models import Pet, DataValidationError, db
+from models import Promotion, DataValidationError, db
 import server
 
 DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///db/test.db')
@@ -35,8 +36,10 @@ DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///db/test.db')
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class TestPetServer(unittest.TestCase):
-    """ Pet Server Tests """
+
+
+class TestPromotionServer(unittest.TestCase):
+    """ Promotion Server Tests """
 
     @classmethod
     def setUpClass(cls):
@@ -55,8 +58,8 @@ class TestPetServer(unittest.TestCase):
         server.init_db()
         db.drop_all()    # clean up the last tests
         db.create_all()  # create new tables
-        Pet(name='fido', category='dog', available=True).save()
-        Pet(name='kitty', category='cat', available=True).save()
+        Promotion(name='20%OFF', product_id=9527, discount_ratio=0.8).save()
+        Promotion(name='50%OFF', product_id=26668, discount_ratio=0.8).save()
         self.app = server.app.test_client()
 
     def tearDown(self):
@@ -68,98 +71,98 @@ class TestPetServer(unittest.TestCase):
         resp = self.app.get('/')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
-        self.assertEqual(data['name'], 'Pet Demo REST API Service')
+        self.assertEqual(data['name'], 'Promotion RESTful API Service')
 
-    def test_get_pet_list(self):
-        """ Get a list of Pets """
-        resp = self.app.get('/pets')
+    def test_get_promotion_list(self):
+        """ Get a list of Promotions """
+        resp = self.app.get('/promotions')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         self.assertEqual(len(data), 2)
 
-    def test_get_pet(self):
-        """ Get a single Pet """
-        # get the id of a pet
-        pet = Pet.find_by_name('fido')[0]
-        resp = self.app.get('/pets/{}'.format(pet.id),
+    def test_get_promotion(self):
+        """ Get a single Promotion """
+        # get the promotion_id of a promotion
+        promotion = Promotion.find_by_name('20%OFF')[0]
+        resp = self.app.get('/promotions/{}'.format(promotion.promotion_id),
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
-        self.assertEqual(data['name'], pet.name)
+        self.assertEqual(data['name'], promotion.name)
 
-    def test_get_pet_not_found(self):
-        """ Get a Pet thats not found """
-        resp = self.app.get('/pets/0')
+    def test_get_promotion_not_found(self):
+        """ Get a Promotion thats not found """
+        resp = self.app.get('/promotions/0')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_create_pet(self):
-        """ Create a new Pet """
-        # save the current number of pets for later comparison
-        pet_count = self.get_pet_count()
-        # add a new pet
-        new_pet = {'name': 'sammy', 'category': 'snake', 'available': 'True'}
-        data = json.dumps(new_pet)
-        resp = self.app.post('/pets', data=data, content_type='application/json')
+    def test_create_promotion(self):
+        """ Create a new Promotion """
+        # save the current number of promotions for later comparison
+        promotion_count = self.get_promotion_count()
+        # add a new promotion
+        new_promotion = {'name': 'ALLFREE', 'product_id': 1982, 'discount_ratio':0}
+        data = json.dumps(new_promotion)
+        resp = self.app.post('/promotions', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         # Make sure location header is set
         location = resp.headers.get('Location', None)
         self.assertTrue(location != None)
         # Check the data is correct
         new_json = json.loads(resp.data)
-        self.assertEqual(new_json['name'], 'sammy')
+        self.assertEqual(new_json['name'], 'ALLFREE')
         # check that count has gone up and includes sammy
-        resp = self.app.get('/pets')
+        resp = self.app.get('/promotions')
         # print 'resp_data(2): ' + resp.data
         data = json.loads(resp.data)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(data), pet_count + 1)
+        self.assertEqual(len(data), promotion_count + 1)
         self.assertIn(new_json, data)
 
-    def test_update_pet(self):
-        """ Update an existing Pet """
-        pet = Pet.find_by_name('kitty')[0]
-        new_kitty = {'name': 'kitty', 'category': 'tabby', 'available': 'True'}
-        data = json.dumps(new_kitty)
-        resp = self.app.put('/pets/{}'.format(pet.id), data=data, content_type='application/json')
+    def test_update_promotion(self):
+        """ Update an existing Promotion """
+        promotion = Promotion.find_by_name('50%OFF')[0]
+        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 0.1}
+        data = json.dumps(new_promotion)
+        resp = self.app.put('/promotions/{}'.format(promotion.promotion_id), data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_json = json.loads(resp.data)
-        self.assertEqual(new_json['category'], 'tabby')
+        self.assertEqual(new_json['product_id'], 2609)
 
-    def test_delete_pet(self):
-        """ Delete a Pet """
-        pet = Pet.find_by_name('fido')[0]
-        # save the current number of pets for later comparrison
-        pet_count = self.get_pet_count()
-        resp = self.app.delete('/pets/{}'.format(pet.id),
+    def test_delete_promotion(self):
+        """ Delete a Promotion """
+        promotion = Promotion.find_by_name('20%OFF')[0]
+        # save the current number of promotions for later comparrison
+        promotion_count = self.get_promotion_count()
+        resp = self.app.delete('/promotions/{}'.format(promotion.promotion_id),
                                content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(resp.data), 0)
-        new_count = self.get_pet_count()
-        self.assertEqual(new_count, pet_count - 1)
+        new_count = self.get_promotion_count()
+        self.assertEqual(new_count, promotion_count - 1)
 
-    def test_query_pet_list_by_category(self):
-        """ Query Pets by Category """
-        resp = self.app.get('/pets', query_string='category=dog')
+    def test_query_promotion_list_by_name(self):
+        """ Query Promotions by Name """
+        resp = self.app.get('/promotions', query_string='name=20%OFF')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertGreater(len(resp.data), 0)
-        self.assertIn('fido', resp.data)
-        self.assertNotIn('kitty', resp.data)
+        self.assertIn('20%OFF', resp.data)
+        self.assertNotIn('50%OFF', resp.data)
         data = json.loads(resp.data)
         query_item = data[0]
-        self.assertEqual(query_item['category'], 'dog')
+        self.assertEqual(query_item['product_id'], 9527)
 
-    @patch('server.Pet.find_by_name')
+    @patch('server.Promotion.find_by_name')
     def test_bad_request(self, bad_request_mock):
         """ Test a Bad Request error from Find By Name """
         bad_request_mock.side_effect = DataValidationError()
-        resp = self.app.get('/pets', query_string='name=fido')
+        resp = self.app.get('/promotions', query_string='name=20%OFF')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch('server.Pet.find_by_name')
-    def test_mock_search_data(self, pet_find_mock):
+    @patch('server.Promotion.find_by_name')
+    def test_mock_search_data(self, promotion_find_mock):
         """ Test showing how to mock data """
-        pet_find_mock.return_value = [MagicMock(serialize=lambda: {'name': 'fido'})]
-        resp = self.app.get('/pets', query_string='name=fido')
+        promotion_find_mock.return_value = [MagicMock(serialize=lambda: {'name': '20%OFF'})]
+        resp = self.app.get('/promotions', query_string='name=20%OFF')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
 
@@ -167,9 +170,9 @@ class TestPetServer(unittest.TestCase):
 # Utility functions
 ######################################################################
 
-    def get_pet_count(self):
-        """ save the current number of pets """
-        resp = self.app.get('/pets')
+    def get_promotion_count(self):
+        """ save the current number of promotions """
+        resp = self.app.get('/promotions')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         return len(data)
