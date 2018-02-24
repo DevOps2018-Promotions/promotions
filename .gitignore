@@ -5,6 +5,10 @@ Thumbs.db
 # Vagrant
 .vagrant
 
+# database files
+db/*
+!db/.keep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
