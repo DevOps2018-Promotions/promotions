@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Test cases for Pet Model
+Test cases for Promotion Model
 
 Test cases can be run with:
   nosetests
@@ -22,7 +22,7 @@ Test cases can be run with:
 
 import unittest
 import os
-from models import Pet, DataValidationError, db
+from models import Promotion, DataValidationError, db
 from server import app
 
 DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///db/test.db')
@@ -30,8 +30,10 @@ DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///db/test.db')
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class TestPets(unittest.TestCase):
-    """ Test Cases for Pets """
+
+
+class TestPromotions(unittest.TestCase):
+    """ Test Cases for Promotions """
 
     @classmethod
     def setUpClass(cls):
@@ -45,7 +47,7 @@ class TestPets(unittest.TestCase):
         pass
 
     def setUp(self):
-        Pet.init_db(app)
+        Promotion.init_db(app)
         db.drop_all()    # clean up the last tests
         db.create_all()  # make our sqlalchemy tables
 
@@ -53,105 +55,98 @@ class TestPets(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_a_pet(self):
-        """ Create a pet and assert that it exists """
-        pet = Pet(name="fido", category="dog", available=True)
-        self.assertTrue(pet != None)
-        self.assertEqual(pet.id, None)
-        self.assertEqual(pet.name, "fido")
-        self.assertEqual(pet.category, "dog")
-        self.assertEqual(pet.available, True)
+    def test_create_a_promotion(self):
+        """ Create a promotion and assert that it exists """
+        promotion = Promotion(name="20%OFF", product_id=9527)
+        self.assertTrue(promotion is not None)
+        self.assertEqual(promotion.promotion_id, None)
+        self.assertEqual(promotion.name, "20%OFF")
+        self.assertEqual(promotion.product_id, 9527)
 
-    def test_add_a_pet(self):
-        """ Create a pet and add it to the database """
-        pets = Pet.all()
-        self.assertEqual(pets, [])
-        pet = Pet(name="fido", category="dog", available=True)
-        self.assertTrue(pet != None)
-        self.assertEqual(pet.id, None)
-        pet.save()
+    def test_add_a_promotion(self):
+        """ Create a promotion and add it to the database """
+        promotions = Promotion.all()
+        self.assertEqual(promotions, [])
+        promotion = Promotion(name="20%OFF", product_id=9527)
+        self.assertTrue(promotion is not None)
+        self.assertEqual(promotion.promotion_id, None)
+        promotion.save()
         # Asert that it was assigned an id and shows up in the database
-        self.assertEqual(pet.id, 1)
-        pets = Pet.all()
-        self.assertEqual(len(pets), 1)
+        self.assertEqual(promotion.promotion_id, 1)
+        promotions = Promotion.all()
+        self.assertEqual(len(promotions), 1)
 
-    def test_update_a_pet(self):
-        """ Update a Pet """
-        pet = Pet(name="fido", category="dog", available=True)
-        pet.save()
-        self.assertEqual(pet.id, 1)
+    def test_update_a_promotion(self):
+        """ Update a Promotion """
+        promotion = Promotion(name="20%OFF", product_id=9527)
+        promotion.save()
+        self.assertEqual(promotion.promotion_id, 1)
         # Change it an save it
-        pet.category = "k9"
-        pet.save()
-        self.assertEqual(pet.id, 1)
+        promotion.category = "BUY4GET1FREE"
+        promotion.save()
+        self.assertEqual(promotion.promotion_id, 1)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
-        pets = Pet.all()
-        self.assertEqual(len(pets), 1)
-        self.assertEqual(pets[0].category, "k9")
+        promotions = Promotion.all()
+        self.assertEqual(len(promotions), 1)
+        self.assertEqual(promotions[0].category, "BUY4GET1FREE")
 
-    def test_delete_a_pet(self):
-        """ Delete a Pet """
-        pet = Pet(name="fido", category="dog", available=True)
-        pet.save()
-        self.assertEqual(len(Pet.all()), 1)
-        # delete the pet and make sure it isn't in the database
-        pet.delete()
-        self.assertEqual(len(Pet.all()), 0)
+    def test_delete_a_promotion(self):
+        """ Delete a Promotion """
+        promotion = Promotion(name="20%OFF", product_id=9527)
+        promotion.save()
+        self.assertEqual(len(Promotion.all()), 1)
+        # delete the promotion and make sure it isn't in the database
+        promotion.delete()
+        self.assertEqual(len(Promotion.all()), 0)
 
-    def test_serialize_a_pet(self):
-        """ Test serialization of a Pet """
-        pet = Pet(name="fido", category="dog", available=False)
-        data = pet.serialize()
+    def test_serialize_a_promotion(self):
+        """ Test serialization of a Promotion """
+        promotion = Promotion(name="20%OFF", product_id=9527)
+        data = promotion.serialize()
         self.assertNotEqual(data, None)
-        self.assertIn('id', data)
-        self.assertEqual(data['id'], None)
+        self.assertIn('promotion_id', data)
+        self.assertEqual(data['promotion_id'], None)
         self.assertIn('name', data)
-        self.assertEqual(data['name'], "fido")
-        self.assertIn('category', data)
-        self.assertEqual(data['category'], "dog")
-        self.assertIn('available', data)
-        self.assertEqual(data['available'], False)
+        self.assertEqual(data['name'], "20%OFF")
+        self.assertIn('product_id', data)
+        self.assertEqual(data['product_id'], 9527)
 
-    def test_deserialize_a_pet(self):
-        """ Test deserialization of a Pet """
-        data = {"id": 1, "name": "kitty", "category": "cat", "available": True}
-        pet = Pet()
-        pet.deserialize(data)
-        self.assertNotEqual(pet, None)
-        self.assertEqual(pet.id, None)
-        self.assertEqual(pet.name, "kitty")
-        self.assertEqual(pet.category, "cat")
-        self.assertEqual(pet.available, True)
+    def test_deserialize_a_promotion(self):
+        """ Test deserialization of a Promotion """
+        data = {"promotion_id": 1, "name": "20%OFF", "product_id": 9527}
+        promotion = Promotion()
+        promotion.deserialize(data)
+        self.assertNotEqual(promotion, None)
+        self.assertEqual(promotion.promotion_id, None)
+        self.assertEqual(promotion.name, "20%OFF")
+        self.assertEqual(promotion.product_id, 9527)
 
-    def test_find_pet(self):
-        """ Find a Pet by ID """
-        Pet(name="fido", category="dog", available=True).save()
-        kitty = Pet(name="kitty", category="cat", available=False)
-        kitty.save()
-        pet = Pet.find(kitty.id)
-        self.assertIsNot(pet, None)
-        self.assertEqual(pet.id, kitty.id)
-        self.assertEqual(pet.name, "kitty")
-        self.assertEqual(pet.available, False)
+    def test_find_promotion(self):
+        """ Find a Promotion by ID """
+        Promotion(name="20%OFF", product_id=9527).save()
+        black_friday_promotion = Promotion(name="50%OFF", product_id=26668)
+        black_friday_promotion.save()
+        promotion = Promotion.find(black_friday_promotion.promotion_id)
+        self.assertIsNot(promotion, None)
+        self.assertEqual(promotion.promotion_id, black_friday_promotion.promotion_id)
+        self.assertEqual(promotion.name, "50%OFF")
 
     def test_find_by_category(self):
-        """ Find Pets by Category """
-        Pet(name="fido", category="dog", available=True).save()
-        Pet(name="kitty", category="cat", available=False).save()
-        pets = Pet.find_by_category("cat")
-        self.assertEqual(pets[0].category, "cat")
-        self.assertEqual(pets[0].name, "kitty")
-        self.assertEqual(pets[0].available, False)
+        """ Find Promotions by Product_id """
+        Promotion(name="20%OFF", product_id=9527).save()
+        Promotion(name="50%OFF", product_id=26668).save()
+        promotions = Promotion.find_by_product_id(9527)
+        self.assertEqual(promotions[0].product_id, 9527)
+        self.assertEqual(promotions[0].name, "20%OFF")
 
     def test_find_by_name(self):
-        """ Find a Pet by Name """
-        Pet(name="fido", category="dog", available=True).save()
-        Pet(name="kitty", category="cat", available=False).save()
-        pets = Pet.find_by_name("kitty")
-        self.assertEqual(pets[0].category, "cat")
-        self.assertEqual(pets[0].name, "kitty")
-        self.assertEqual(pets[0].available, False)
+        """ Find a Promotion by Name """
+        Promotion(name="20%OFF", product_id=9527).save()
+        Promotion(name="50%OFF", product_id=26668).save()
+        promotions = Promotion.find_by_name("20%OFF")
+        self.assertEqual(promotions[0].product_id, 9527)
+        self.assertEqual(promotions[0].name, "20%OFF")
 
 
 ######################################################################

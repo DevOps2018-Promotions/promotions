@@ -74,7 +74,7 @@ class Promotion(db.Model):
 
     def serialize(self):
         """ Serializes a Promotion into a dictionary """
-        return {"id": self.promotion_id,
+        return {"promotion_id": self.promotion_id,
                 "name": self.name,
                 "product_id": self.product_id}
 
@@ -88,7 +88,6 @@ class Promotion(db.Model):
         if not isinstance(data, dict):
             raise DataValidationError('Invalid pet: body of request contained bad or no data')
         try:
-            self.promotion_id = data['promotion_id']
             self.name = data['name']
             self.product_id = data['product_id']
             # self.start_date = data['start_date']
