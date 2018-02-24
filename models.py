@@ -53,6 +53,7 @@ class Promotion(db.Model):
     promotion_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
     product_id = db.Column(db.Integer)
+    discount_ratio = db.Column(db.Float)
     # start_date = db.Column(db.DateTime)
     # end_date = db.Column(db.DateTime)
 
@@ -76,7 +77,8 @@ class Promotion(db.Model):
         """ Serializes a Promotion into a dictionary """
         return {"promotion_id": self.promotion_id,
                 "name": self.name,
-                "product_id": self.product_id}
+                "product_id": self.product_id,
+                "discount_ratio": self.discount_ratio}
 
     def deserialize(self, data):
         """
@@ -90,6 +92,7 @@ class Promotion(db.Model):
         try:
             self.name = data['name']
             self.product_id = data['product_id']
+            self.discount_ratio = data['discount_ratio']
             # self.start_date = data['start_date']
             # self.end_date = data['end_date']
         except KeyError as error:
@@ -146,3 +149,13 @@ class Promotion(db.Model):
         """
         Promotion.logger.info('Processing product_id query for %s ...', product_id)
         return Promotion.query.filter(Promotion.product_id == product_id)
+
+    @staticmethod
+    def find_by_discount_ratio(discount_ratio):
+        """ Returns all Promotions of a specific product
+
+        Args:
+            discount_ratio (Float): product id of the Promotions you want to match
+        """
+        Promotion.logger.info('Processing product_id query for %s ...', discount_ratio)
+        return Promotion.query.filter(Promotion.discount_ratio == discount_ratio)

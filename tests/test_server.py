@@ -58,8 +58,8 @@ class TestPromotionServer(unittest.TestCase):
         server.init_db()
         db.drop_all()    # clean up the last tests
         db.create_all()  # create new tables
-        Promotion(name='20%OFF', product_id=9527).save()
-        Promotion(name='50%OFF', product_id=26668).save()
+        Promotion(name='20%OFF', product_id=9527, discount_ratio=0.8).save()
+        Promotion(name='50%OFF', product_id=26668, discount_ratio=0.8).save()
         self.app = server.app.test_client()
 
     def tearDown(self):
@@ -100,7 +100,7 @@ class TestPromotionServer(unittest.TestCase):
         # save the current number of promotions for later comparison
         promotion_count = self.get_promotion_count()
         # add a new promotion
-        new_promotion = {'name': 'ALLFREE', 'product_id': 1982}
+        new_promotion = {'name': 'ALLFREE', 'product_id': 1982, 'discount_ratio':0}
         data = json.dumps(new_promotion)
         resp = self.app.post('/promotions', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -121,12 +121,12 @@ class TestPromotionServer(unittest.TestCase):
     def test_update_promotion(self):
         """ Update an existing Promotion """
         promotion = Promotion.find_by_name('50%OFF')[0]
-        new_kitty = {'name': '50%OFF', 'product_id': 'tabby'}
-        data = json.dumps(new_kitty)
+        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 0.1}
+        data = json.dumps(new_promotion)
         resp = self.app.put('/promotions/{}'.format(promotion.promotion_id), data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_json = json.loads(resp.data)
-        self.assertEqual(new_json['product_id'], 'tabby')
+        self.assertEqual(new_json['product_id'], 2609)
 
     def test_delete_promotion(self):
         """ Delete a Promotion """

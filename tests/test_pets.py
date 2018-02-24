@@ -57,7 +57,7 @@ class TestPromotions(unittest.TestCase):
 
     def test_create_a_promotion(self):
         """ Create a promotion and assert that it exists """
-        promotion = Promotion(name="20%OFF", product_id=9527)
+        promotion = Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8)
         self.assertTrue(promotion is not None)
         self.assertEqual(promotion.promotion_id, None)
         self.assertEqual(promotion.name, "20%OFF")
@@ -67,7 +67,7 @@ class TestPromotions(unittest.TestCase):
         """ Create a promotion and add it to the database """
         promotions = Promotion.all()
         self.assertEqual(promotions, [])
-        promotion = Promotion(name="20%OFF", product_id=9527)
+        promotion = Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8)
         self.assertTrue(promotion is not None)
         self.assertEqual(promotion.promotion_id, None)
         promotion.save()
@@ -78,7 +78,7 @@ class TestPromotions(unittest.TestCase):
 
     def test_update_a_promotion(self):
         """ Update a Promotion """
-        promotion = Promotion(name="20%OFF", product_id=9527)
+        promotion = Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8)
         promotion.save()
         self.assertEqual(promotion.promotion_id, 1)
         # Change it an save it
@@ -93,7 +93,7 @@ class TestPromotions(unittest.TestCase):
 
     def test_delete_a_promotion(self):
         """ Delete a Promotion """
-        promotion = Promotion(name="20%OFF", product_id=9527)
+        promotion = Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8)
         promotion.save()
         self.assertEqual(len(Promotion.all()), 1)
         # delete the promotion and make sure it isn't in the database
@@ -102,7 +102,7 @@ class TestPromotions(unittest.TestCase):
 
     def test_serialize_a_promotion(self):
         """ Test serialization of a Promotion """
-        promotion = Promotion(name="20%OFF", product_id=9527)
+        promotion = Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8)
         data = promotion.serialize()
         self.assertNotEqual(data, None)
         self.assertIn('promotion_id', data)
@@ -114,7 +114,7 @@ class TestPromotions(unittest.TestCase):
 
     def test_deserialize_a_promotion(self):
         """ Test deserialization of a Promotion """
-        data = {"promotion_id": 1, "name": "20%OFF", "product_id": 9527}
+        data = {"promotion_id": 1, "name": "20%OFF", "product_id": 9527, "discount_ratio": 0.80}
         promotion = Promotion()
         promotion.deserialize(data)
         self.assertNotEqual(promotion, None)
@@ -124,7 +124,7 @@ class TestPromotions(unittest.TestCase):
 
     def test_find_promotion(self):
         """ Find a Promotion by ID """
-        Promotion(name="20%OFF", product_id=9527).save()
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
         black_friday_promotion = Promotion(name="50%OFF", product_id=26668)
         black_friday_promotion.save()
         promotion = Promotion.find(black_friday_promotion.promotion_id)
@@ -134,7 +134,7 @@ class TestPromotions(unittest.TestCase):
 
     def test_find_by_category(self):
         """ Find Promotions by Product_id """
-        Promotion(name="20%OFF", product_id=9527).save()
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
         Promotion(name="50%OFF", product_id=26668).save()
         promotions = Promotion.find_by_product_id(9527)
         self.assertEqual(promotions[0].product_id, 9527)
@@ -142,7 +142,7 @@ class TestPromotions(unittest.TestCase):
 
     def test_find_by_name(self):
         """ Find a Promotion by Name """
-        Promotion(name="20%OFF", product_id=9527).save()
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
         Promotion(name="50%OFF", product_id=26668).save()
         promotions = Promotion.find_by_name("20%OFF")
         self.assertEqual(promotions[0].product_id, 9527)
