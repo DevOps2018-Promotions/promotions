@@ -35,7 +35,7 @@ from werkzeug.exceptions import NotFound
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
 
-from models import Pet, DataValidationError
+from models import Promotion, DataValidationError
 
 # Create Flask application
 app = Flask(__name__)
@@ -118,11 +118,11 @@ def list_pets():
     category = request.args.get('category')
     name = request.args.get('name')
     if category:
-        pets = Pet.find_by_category(category)
+        pets = Promotion.find_by_category(category)
     elif name:
-        pets = Pet.find_by_name(name)
+        pets = Promotion.find_by_name(name)
     else:
-        pets = Pet.all()
+        pets = Promotion.all()
 
     results = [pet.serialize() for pet in pets]
     return make_response(jsonify(results), status.HTTP_200_OK)
@@ -138,7 +138,7 @@ def get_pets(pet_id):
 
     This endpoint will return a Pet based on it's id
     """
-    pet = Pet.find(pet_id)
+    pet = Promotion.find(pet_id)
     if not pet:
         raise NotFound("Pet with id '{}' was not found.".format(pet_id))
     return make_response(jsonify(pet.serialize()), status.HTTP_200_OK)
@@ -154,11 +154,11 @@ def create_pets():
     This endpoint will create a Pet based the data in the body that is posted
     """
     check_content_type('application/json')
-    pet = Pet()
+    pet = Promotion()
     pet.deserialize(request.get_json())
     pet.save()
     message = pet.serialize()
-    location_url = url_for('get_pets', pet_id=pet.id, _external=True)
+    location_url = url_for('get_pets', pet_id=pet.promotion_id, _external=True)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
                          {
                              'Location': location_url
@@ -176,7 +176,7 @@ def update_pets(pet_id):
     This endpoint will update a Pet based the body that is posted
     """
     check_content_type('application/json')
-    pet = Pet.find(pet_id)
+    pet = Promotion.find(pet_id)
     if not pet:
         raise NotFound("Pet with id '{}' was not found.".format(pet_id))
     pet.deserialize(request.get_json())
@@ -195,7 +195,7 @@ def delete_pets(pet_id):
 
     This endpoint will delete a Pet based the id specified in the path
     """
-    pet = Pet.find(pet_id)
+    pet = Promotion.find(pet_id)
     if pet:
         pet.delete()
     return make_response('', status.HTTP_204_NO_CONTENT)
@@ -207,7 +207,7 @@ def delete_pets(pet_id):
 def init_db():
     """ Initialies the SQLAlchemy app """
     global app
-    Pet.init_db(app)
+    Promotion.init_db(app)
 
 def check_content_type(content_type):
     """ Checks that the media type is correct """
