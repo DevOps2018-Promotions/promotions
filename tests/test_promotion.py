@@ -122,6 +122,33 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(promotion.name, "20%OFF")
         self.assertEqual(promotion.product_id, 9527)
 
+    def test_deserialize_input_not_dict(self):
+        """ Test deserialization of a Promotion with non-dict input"""
+        data = [1, "20%OFF", 9527, 0.80]
+        promotion = Promotion()
+        self.assertRaises(
+            DataValidationError,
+            promotion.deserialize,
+            data)
+
+    def test_deserialize_key_error(self):
+        """ Test deserialization of a Promotion with KeyError input"""
+        data = {}
+        promotion = Promotion()
+        self.assertRaises(
+            DataValidationError,
+            promotion.deserialize,
+            data)
+
+    def test_deserialize_type_error(self):
+        """ Test deserialization of a Promotion with TypeError input"""
+        data = {'name': '20%OFF', 'product_id': '9527', 'discount_ratio': 0.8}
+        promotion = Promotion()
+        self.assertRaises(
+            DataValidationError,
+            promotion.deserialize,
+            data)
+
     def test_find_promotion(self):
         """ Find a Promotion by ID """
         Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
