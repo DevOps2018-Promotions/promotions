@@ -118,6 +118,22 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(len(data), promotion_count + 1)
         self.assertIn(new_json, data)
 
+    def test_create_wrong_content_type(self):
+        promotion_count = self.get_promotion_count()
+        # add a new promotion
+        new_promotion = "{'name': 'ALLFREE', 'product_id': 1982, 'discount_ratio':0}"
+        data = json.dumps(new_promotion)
+        resp = self.app.post('/promotions', data=data, content_type='text/plain')
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_create_bad_request(self):
+        promotion_count = self.get_promotion_count()
+        # add a new promotion
+        new_promotion = {'name': 'ALLFREE', 'product_id': '1982', 'discount_ratio':0}
+        data = json.dumps(new_promotion)
+        resp = self.app.post('/promotions', data=data, content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_update_promotion(self):
         """ Update an existing Promotion """
         promotion = Promotion.find_by_name('50%OFF')[0]

@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Models for Pet Demo Service
+Models for Promotion Service
 
 All of the models are stored in this module
 
 Models
 ------
-Pet - A Pet used in the Pet Store
+Promotion - A Promotion used in the eCommerce Site
 
 Attributes:
 -----------
-name (string) - the name of the pet
-category (string) - the category the pet belongs to (i.e., dog, cat)
-available (boolean) - True for pets that are available for adoption
-
+promotion_id (integer) - the id of the promotion
+name (string) - the name of the promotion
+product_id (integer) - the id of the product associated with the promotion
+discount_ratio (float) - the discount ratio
 """
 import logging
 from flask_sqlalchemy import SQLAlchemy
@@ -90,9 +90,9 @@ class Promotion(db.Model):
         if not isinstance(data, dict):
             raise DataValidationError('Invalid pet: body of request contained bad or no data')
         try:
-            self.name = data['name']
-            self.product_id = data['product_id']
-            self.discount_ratio = data['discount_ratio']
+            self.name = "" + data['name']
+            self.product_id = 0 + data['product_id']
+            self.discount_ratio = 0.0 + data['discount_ratio']
             # self.start_date = data['start_date']
             # self.end_date = data['end_date']
         except KeyError as error:
