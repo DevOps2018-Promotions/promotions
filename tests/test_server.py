@@ -152,6 +152,17 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(new_json['product_id'], 2609)
         self.assertEqual(new_json['discount_ratio'], 0.1)
 
+    def test_update_promotion_promotion_id_not_found(self):
+        promotion_count = self.get_promotion_count()
+        promotion_id = 999
+        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 0.1}
+        data = json.dumps(new_promotion)
+        resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
+                            content_type='application/json')
+        new_promotion_count = self.get_promotion_count()
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(promotion_count, new_promotion_count)
+
     def test_update_promotion_wrong_content_type(self):
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
@@ -161,8 +172,13 @@ class TestPromotionServer(unittest.TestCase):
         resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
                             content_type='application/plain')
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        new_promotion_count = self.get_promotion_count()
+        self.assertEqual(promotion_count, new_promotion_count)
+        self.assertEqual(promotion.name, "50%OFF")
+        self.assertEqual(promotion.product_id, 26668)
+        self.assertEqual(promotion.discount_ratio, 0.5)
 
-    def test_update_promotion_bad_reuest(self):
+    def test_update_promotion_bad_reuest_wrong_value_type(self):
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
@@ -171,11 +187,23 @@ class TestPromotionServer(unittest.TestCase):
         resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        # new_json = json.loads(resp.data)
-        # self.assertEqual(promotion_count)
         new_promotion_count = self.get_promotion_count()
         self.assertEqual(promotion_count, new_promotion_count)
-        new_json = json.loads(resp.data)
+        self.assertEqual(promotion.name, "50%OFF")
+        self.assertEqual(promotion.product_id, 26668)
+        self.assertEqual(promotion.discount_ratio, 0.5)
+
+    def test_update_promotion_bad_reuest_value_out_of_range(self):
+        promotion_count = self.get_promotion_count()
+        promotion = Promotion.find_by_name('50%OFF')[0]
+        promotion_id = promotion.promotion_id
+        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 2}
+        data = json.dumps(new_promotion)
+        resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        new_promotion_count = self.get_promotion_count()
+        self.assertEqual(promotion_count, new_promotion_count)
         self.assertEqual(promotion.name, "50%OFF")
         self.assertEqual(promotion.product_id, 26668)
         self.assertEqual(promotion.discount_ratio, 0.5)
