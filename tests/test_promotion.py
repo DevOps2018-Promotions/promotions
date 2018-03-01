@@ -153,6 +153,15 @@ class TestPromotions(unittest.TestCase):
             promotion.deserialize,
             data)
 
+    def test_deserialize_value_out_of_range(self):
+        """ Test deserialization of a Promotion with input value out of range"""
+        data = {'name': '20%OFF', 'product_id': 9527, 'discount_ratio': -1}
+        promotion = Promotion()
+        self.assertRaises(
+            DataValidationError,
+            promotion.deserialize,
+            data)
+
     def test_find_promotion(self):
         """ Find a Promotion by ID """
         Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()

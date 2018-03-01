@@ -106,7 +106,7 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         # Make sure location header is set
         location = resp.headers.get('Location', None)
-        self.assertTrue(location is not None)
+        self.assertIsNotNone(location)
         # Check the data is correct
         new_json = json.loads(resp.data)
         self.assertEqual(new_json['name'], 'ALLFREE')
