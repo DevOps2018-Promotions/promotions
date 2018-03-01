@@ -84,14 +84,18 @@ class TestPromotions(unittest.TestCase):
         promotion.save()
         self.assertEqual(promotion.promotion_id, 1)
         # Change it an save it
-        promotion.category = "BUY4GET1FREE"
+        promotion.name = "BUY1GET1FREE"
+        promotion.product_id = 9528
+        promotion.discount_ratio = 0.5
         promotion.save()
         self.assertEqual(promotion.promotion_id, 1)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         promotions = Promotion.all()
         self.assertEqual(len(promotions), 1)
-        self.assertEqual(promotions[0].category, "BUY4GET1FREE")
+        self.assertEqual(promotions[0].name, "BUY1GET1FREE")
+        self.assertEqual(promotions[0].product_id, 9528)
+        self.assertEqual(promotions[0].discount_ratio, 0.5)
 
     def test_delete_a_promotion(self):
         """ Delete a Promotion """
@@ -153,6 +157,15 @@ class TestPromotions(unittest.TestCase):
             promotion.deserialize,
             data)
 
+    def test_deserialize_value_out_of_range(self):
+        """ Test deserialization of a Promotion with input value out of range"""
+        data = {'name': '20%OFF', 'product_id': 9527, 'discount_ratio': -1}
+        promotion = Promotion()
+        self.assertRaises(
+            DataValidationError,
+            promotion.deserialize,
+            data)
+
     def test_find_promotion(self):
         """ Find a Promotion by ID """
         Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
@@ -162,6 +175,22 @@ class TestPromotions(unittest.TestCase):
         self.assertIsNot(promotion, None)
         self.assertEqual(promotion.promotion_id, black_friday_promotion.promotion_id)
         self.assertEqual(promotion.name, "50%OFF")
+
+    def test_find_promotion_input_nonexistent_id(self):
+        """ Test find promotion function with nonexistent ID """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        promotion = Promotion.find(2)
+        self.assertEqual(promotion, None)
+
+    def test_find_promotion_input_not_id(self):
+        """ Test find promotion function with invalid ID type"""
+        data = "a"
+        promotion = Promotion()
+        self.assertRaises(
+            DataValidationError,
+            promotion.find,
+            data
+        )
 
     def test_find_by_category(self):
         """ Find Promotions by Product_id """

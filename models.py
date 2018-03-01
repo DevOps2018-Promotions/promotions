@@ -91,11 +91,17 @@ class Promotion(db.Model):
             data (dict): A dictionary containing the Promotion data
         """
         if not isinstance(data, dict):
-            raise DataValidationError('Invalid pet: body of request contained bad or no data')
+            raise DataValidationError('Invalid promotion: body of request contained bad or no data')
         try:
-            self.name = "" + data['name']
-            self.product_id = 0 + data['product_id']
-            self.discount_ratio = 0.0 + data['discount_ratio']
+            new_name = "" + data['name']
+            new_product_id = 0 + data['product_id']
+            new_discount_ratio = 0.0 + data['discount_ratio']
+            if new_discount_ratio < 0 or new_discount_ratio > 1:
+                raise DataValidationError('Invalid promotion: discount_ratio out of range'\
+                                          'expecting value between 0 to 1')
+            self.name = new_name
+            self.product_id = new_product_id
+            self.discount_ratio = new_discount_ratio
             # self.start_date = data['start_date']
             # self.end_date = data['end_date']
         except KeyError as error:
@@ -124,6 +130,8 @@ class Promotion(db.Model):
     @staticmethod
     def find(promotion_id):
         """ Finds a Promotions by it's ID """
+        if not isinstance(promotion_id, int):
+            raise DataValidationError('Invalid promotion: body of request contained bad or no data')
         Promotion.logger.info('Processing lookup for id %s ...', promotion_id)
         return Promotion.query.get(promotion_id)
 
