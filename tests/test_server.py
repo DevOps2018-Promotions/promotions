@@ -178,7 +178,7 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(promotion.product_id, 26668)
         self.assertEqual(promotion.discount_ratio, 0.5)
 
-    def test_update_promotion_bad_reuest_wrong_value_type(self):
+    def test_update_promotion_bad_request_wrong_value_type(self):
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
@@ -193,7 +193,7 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(promotion.product_id, 26668)
         self.assertEqual(promotion.discount_ratio, 0.5)
 
-    def test_update_promotion_bad_reuest_value_out_of_range(self):
+    def test_update_promotion_bad_request_value_out_of_range(self):
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
