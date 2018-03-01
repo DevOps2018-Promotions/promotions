@@ -1,0 +1,4 @@
+{
+  "tests/test_promotion.py": true, 
+  "tests/test_server.py": true
+}

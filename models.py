@@ -54,6 +54,7 @@ class Promotion(db.Model):
     name = db.Column(db.String(63))
     product_id = db.Column(db.Integer)
     discount_ratio = db.Column(db.Float)
+    counter = db.Column(db.Integer)
     # start_date = db.Column(db.DateTime)
     # end_date = db.Column(db.DateTime)
 
@@ -65,6 +66,7 @@ class Promotion(db.Model):
         Saves a Promotion to the data store
         """
         if not self.promotion_id:
+            self.counter = 0
             db.session.add(self)
         db.session.commit()
 
@@ -78,7 +80,8 @@ class Promotion(db.Model):
         return {"promotion_id": self.promotion_id,
                 "name": self.name,
                 "product_id": self.product_id,
-                "discount_ratio": self.discount_ratio}
+                "discount_ratio": self.discount_ratio,
+                "counter": self.counter}
 
     def deserialize(self, data):
         """

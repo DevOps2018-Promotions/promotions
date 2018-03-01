@@ -167,6 +167,20 @@ class TestPromotionServer(unittest.TestCase):
         query_item = data[0]
         self.assertEqual(query_item['product_id'], 9527)
 
+    def test_redeem_promotions(self):
+        """ Redeem a promotion """
+        for i in xrange(1, 20):
+            promotion = Promotion.find_by_name('50%OFF')[0]
+            resp = self.app.put('/promotions/{}/redeem'.format(promotion.promotion_id))
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            new_json = json.loads(resp.data)
+            self.assertEqual(new_json['counter'], i)
+
+    def test_redeem_promotions_not_fount(self):
+        """ Redeem a promotion """
+        resp = self.app.put('/promotions/3/redeem')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     @patch('server.Promotion.find_by_name')
     def test_bad_request(self, bad_request_mock):
         """ Test a Bad Request error from Find By Name """

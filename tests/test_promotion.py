@@ -62,6 +62,7 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(promotion.promotion_id, None)
         self.assertEqual(promotion.name, "20%OFF")
         self.assertEqual(promotion.product_id, 9527)
+        self.assertIsNone(promotion.counter)
 
     def test_add_a_promotion(self):
         """ Create a promotion and add it to the database """
@@ -73,6 +74,7 @@ class TestPromotions(unittest.TestCase):
         promotion.save()
         # Asert that it was assigned an id and shows up in the database
         self.assertEqual(promotion.promotion_id, 1)
+        self.assertEqual(promotion.counter, 0)
         promotions = Promotion.all()
         self.assertEqual(len(promotions), 1)
 
@@ -111,6 +113,8 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(data['name'], "20%OFF")
         self.assertIn('product_id', data)
         self.assertEqual(data['product_id'], 9527)
+        self.assertIn('counter', data)
+        self.assertIsNone(data['counter'])
 
     def test_deserialize_a_promotion(self):
         """ Test deserialization of a Promotion """
