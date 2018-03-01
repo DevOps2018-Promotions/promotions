@@ -95,6 +95,11 @@ class TestPromotionServer(unittest.TestCase):
         resp = self.app.get('/promotions/0')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_get_promotion_wrong_id_type(self):
+        """ Get a Promotion with wrong id type """
+        resp = self.app.get('/promotions/a')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_create_promotion(self):
         """ Create a new Promotion """
         # save the current number of promotions for later comparison

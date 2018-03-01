@@ -88,7 +88,7 @@ class Promotion(db.Model):
             data (dict): A dictionary containing the Promotion data
         """
         if not isinstance(data, dict):
-            raise DataValidationError('Invalid pet: body of request contained bad or no data')
+            raise DataValidationError('Invalid promotion: body of request contained bad or no data')
         try:
             self.name = "" + data['name']
             self.product_id = 0 + data['product_id']
@@ -121,6 +121,8 @@ class Promotion(db.Model):
     @staticmethod
     def find(promotion_id):
         """ Finds a Promotions by it's ID """
+        if not isinstance(promotion_id, int):
+            raise DataValidationError('Invalid promotion: body of request contained bad or no data')
         Promotion.logger.info('Processing lookup for id %s ...', promotion_id)
         return Promotion.query.get(promotion_id)
 
