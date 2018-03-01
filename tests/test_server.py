@@ -153,6 +153,7 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(new_json['discount_ratio'], 0.1)
 
     def test_update_promotion_promotion_id_not_found(self):
+        """ Update a non-existing Promotion """
         promotion_count = self.get_promotion_count()
         promotion_id = 999
         new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 0.1}
@@ -164,6 +165,7 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(promotion_count, new_promotion_count)
 
     def test_update_promotion_wrong_content_type(self):
+        """ Update an existing Promotion with wrong input format"""
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
@@ -179,6 +181,7 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(promotion.discount_ratio, 0.5)
 
     def test_update_promotion_bad_request_wrong_value_type(self):
+        """ Update an existing Promotion with wrong data type"""
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
@@ -194,6 +197,7 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(promotion.discount_ratio, 0.5)
 
     def test_update_promotion_bad_request_value_out_of_range(self):
+        """ Update an existing Promotion with wrong value"""
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
