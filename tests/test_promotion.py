@@ -82,14 +82,18 @@ class TestPromotions(unittest.TestCase):
         promotion.save()
         self.assertEqual(promotion.promotion_id, 1)
         # Change it an save it
-        promotion.category = "BUY4GET1FREE"
+        promotion.name = "BUY1GET1FREE"
+        promotion.product_id = 9528
+        promotion.discount_ratio = 0.5
         promotion.save()
         self.assertEqual(promotion.promotion_id, 1)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         promotions = Promotion.all()
         self.assertEqual(len(promotions), 1)
-        self.assertEqual(promotions[0].category, "BUY4GET1FREE")
+        self.assertEqual(promotions[0].name, "BUY1GET1FREE")
+        self.assertEqual(promotions[0].product_id, 9528)
+        self.assertEqual(promotions[0].discount_ratio, 0.5)
 
     def test_delete_a_promotion(self):
         """ Delete a Promotion """
