@@ -172,6 +172,22 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(promotion.promotion_id, black_friday_promotion.promotion_id)
         self.assertEqual(promotion.name, "50%OFF")
 
+    def test_find_promotion_input_nonexistent_id(self):
+        """ Test find promotion function with nonexistent ID """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        promotion = Promotion.find(2)
+        self.assertEqual(promotion, None)
+
+    def test_find_promotion_input_not_id(self):
+        """ Test find promotion function with invalid ID type"""
+        data = "a"
+        promotion = Promotion()
+        self.assertRaises(
+            DataValidationError,
+            promotion.find,
+            data
+        )
+
     def test_find_by_category(self):
         """ Find Promotions by Product_id """
         Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
