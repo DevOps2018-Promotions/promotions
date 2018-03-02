@@ -22,7 +22,6 @@ Test cases can be run with the following:
 
 
 import unittest
-import threading
 import os
 import json
 import logging
@@ -221,7 +220,7 @@ class TestPromotionServer(unittest.TestCase):
     def test_delete_promotion(self):
         """ Delete a Promotion """
         promotion = Promotion.find_by_name('20%OFF')[0]
-        # save the current number of promotions for later comparrison
+        # save the current number of promotions for later comparison
         promotion_count = self.get_promotion_count()
         resp = self.app.delete('/promotions/{}'.format(promotion.promotion_id),
                                content_type='application/json')

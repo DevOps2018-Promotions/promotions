@@ -192,7 +192,7 @@ class TestPromotions(unittest.TestCase):
             data
         )
 
-    def test_find_by_category(self):
+    def test_find_by_product_id(self):
         """ Find Promotions by Product_id """
         Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
         Promotion(name="50%OFF", product_id=26668).save()
