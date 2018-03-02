@@ -208,6 +208,27 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(promotions[0].product_id, 9527)
         self.assertEqual(promotions[0].name, "20%OFF")
 
+    def test_find_or_404(self):
+        """ Find promotion or 404 """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        promotion = Promotion.find_or_404(1)
+        self.assertIsNotNone(promotion)
+        self.assertEqual(promotion.promotion_id, 1)
+        self.assertEqual(promotion.name, "20%OFF")
+        self.assertEqual(promotion.product_id, 9527)
+        self.assertEqual(promotion.discount_ratio, 0.8)
+        self.assertEqual(promotion.counter, 0)
+
+    def test_find_or_404_404(self):
+        """ Find promotion or 404 expecting 404 """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        try:
+            promotion = Promotion.find_or_404(2)
+            # Should not reach beyond this line.
+            self.assertIsNone(promotion)
+        except:
+            pass
+
     def test_find_by_discount_ratio(self):
         """ Find a Promotion by Discount ratio """
         Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
