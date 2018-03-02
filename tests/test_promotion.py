@@ -230,6 +230,14 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(promotions[0].product_id, 9527)
         self.assertEqual(promotions[0].name, "20%OFF")
 
+    def test_find_by_discount_ratio(self):
+        """ Find a Promotion by Discount ratio """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        Promotion(name="50%OFF", product_id=26668).save()
+        promotions = Promotion.find_by_discount_ratio(0.8)
+        self.assertEqual(promotions[0].product_id, 9527)
+        self.assertEqual(promotions[0].name, "20%OFF")
+
     def test_redeem_promotion_bad_data(self):
         """ Redeem a Promoion with bad data """
         Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()

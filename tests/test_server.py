@@ -221,7 +221,7 @@ class TestPromotionServer(unittest.TestCase):
     def test_delete_promotion(self):
         """ Delete a Promotion """
         promotion = Promotion.find_by_name('20%OFF')[0]
-        # save the current number of promotions for later comparrison
+        # save the current number of promotions for later comparison
         promotion_count = self.get_promotion_count()
         resp = self.app.delete('/promotions/{}'.format(promotion.promotion_id),
                                content_type='application/json')
@@ -237,6 +237,28 @@ class TestPromotionServer(unittest.TestCase):
         self.assertGreater(len(resp.data), 0)
         self.assertIn('20%OFF', resp.data)
         self.assertNotIn('50%OFF', resp.data)
+        data = json.loads(resp.data)
+        query_item = data[0]
+        self.assertEqual(query_item['product_id'], 9527)
+		
+    def test_query_promotion_list_by_product_id(self):
+        """ Query Promotions by Product id """
+        resp = self.app.get('/promotions', query_string='product_id=9527')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(resp.data), 0)
+        self.assertIn('9527', resp.data)
+        self.assertNotIn('9526', resp.data)
+        data = json.loads(resp.data)
+        query_item = data[0]
+        self.assertEqual(query_item['name'], '20%OFF')
+		
+    def test_query_promotion_list_by_discount_ratio(self):
+        """ Query Promotions by Discount ratio """
+        resp = self.app.get('/promotions', query_string='discount_ratio=0.8')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(resp.data), 0)
+        self.assertIn('0.8', resp.data)
+        self.assertNotIn('0.2', resp.data)
         data = json.loads(resp.data)
         query_item = data[0]
         self.assertEqual(query_item['product_id'], 9527)
