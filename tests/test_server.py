@@ -241,6 +241,28 @@ class TestPromotionServer(unittest.TestCase):
         query_item = data[0]
         self.assertEqual(query_item['product_id'], 9527)
 
+    def test_query_promotion_list_by_product_id(self):
+        """ Query Promotions by Product id """
+        resp = self.app.get('/promotions', query_string='product_id=9527')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(resp.data), 0)
+        self.assertIn('9527', resp.data)
+        self.assertNotIn('9526', resp.data)
+        data = json.loads(resp.data)
+        query_item = data[0]
+        self.assertEqual(query_item['name'], '20%OFF')
+
+    def test_query_promotion_list_by_discount_ratio(self):
+        """ Query Promotions by Discount ratio """
+        resp = self.app.get('/promotions', query_string='discount_ratio=0.8')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(resp.data), 0)
+        self.assertIn('0.8', resp.data)
+        self.assertNotIn('0.2', resp.data)
+        data = json.loads(resp.data)
+        query_item = data[0]
+        self.assertEqual(query_item['product_id'], 9527)
+
     def test_redeem_promotions(self):
         """ Redeem a promotion """
         for i in xrange(1, 20):
