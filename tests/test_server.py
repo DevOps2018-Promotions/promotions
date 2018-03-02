@@ -22,6 +22,7 @@ Test cases can be run with the following:
 
 
 import unittest
+import threading
 import os
 import json
 import logging
@@ -246,13 +247,46 @@ class TestPromotionServer(unittest.TestCase):
             promotion = Promotion.find_by_name('50%OFF')[0]
             resp = self.app.put('/promotions/{}/redeem'.format(promotion.promotion_id))
             self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            resp = self.app.get('/promotions/{}'.format(promotion.promotion_id))
             new_json = json.loads(resp.data)
             self.assertEqual(new_json['counter'], i)
 
+    # def test_redeem_promotions_concurrent(self):
+    #     """ Redeem a promotion concurrently """
+    #     resp = self.app.get('/promotions/1')
+    #     original_json = json.loads(resp.data)
+    #     # Launch a number of threads to test the serializablity of the action.
+    #     num_threads = 1000
+    #     threads = [
+    #         threading.Thread(
+    #             target=self.app.put,
+    #             args=('/promotions/1/redeem',)
+    #         ) for _ in xrange(num_threads)]
+    #     [t.start() for t in threads]
+    #     [t.join() for t in threads]
+    #
+    #     resp = self.app.get('/promotions/1')
+    #     new_json = json.loads(resp.data)
+    #     self.assertEqual(new_json['counter'], num_threads)
+    #     self.assertEqual(new_json['name'], original_json['name'])
+    #     self.assertEqual(new_json['product_id'], original_json['product_id'])
+    #     self.assertEqual(new_json['discount_ratio'], original_json['discount_ratio'])
+
+
     def test_redeem_promotions_not_fount(self):
-        """ Redeem a promotion """
+        """ Redeem a promotion with invalid id """
         resp = self.app.put('/promotions/3/redeem')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_redeem_promotions_method_not_suported(self):
+        """ Redeem a promotion with the wrong method """
+        promotion = Promotion.find_by_name('50%OFF')[0]
+        resp = self.app.put('/promotions/{}/redeem'.format(promotion.promotion_id))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        resp = self.app.get('/promotions/{}/redeem'.format(promotion.promotion_id))
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        resp = self.app.post('/promotions/{}/redeem'.format(promotion.promotion_id))
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @patch('server.Promotion.find_by_name')
     def test_bad_request(self, bad_request_mock):

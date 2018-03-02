@@ -170,3 +170,16 @@ class Promotion(db.Model):
         """
         Promotion.logger.info('Processing product_id query for %s ...', discount_ratio)
         return Promotion.query.filter(Promotion.discount_ratio == discount_ratio)
+
+    @staticmethod
+    def redeem_promotion(promotion_id):
+        """ Redeem a Promotions by it's ID. Not thread-safe!!! """
+        # TODO: Make it thread-safe
+        if not isinstance(promotion_id, int):
+            raise DataValidationError('Invalid promotion: body of request contained bad or no data')
+        # Make sure the promotion exists.
+        Promotion.find_or_404(promotion_id)
+        db.session.query(Promotion).filter_by(
+            promotion_id=promotion_id).update(
+                {'counter': Promotion.counter + 1})
+        db.session.commit()
