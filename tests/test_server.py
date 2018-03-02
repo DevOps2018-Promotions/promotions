@@ -221,7 +221,7 @@ class TestPromotionServer(unittest.TestCase):
     def test_delete_promotion(self):
         """ Delete a Promotion """
         promotion = Promotion.find_by_name('20%OFF')[0]
-        # save the current number of promotions for later comparison
+        # save the current number of promotions for later comparrison
         promotion_count = self.get_promotion_count()
         resp = self.app.delete('/promotions/{}'.format(promotion.promotion_id),
                                content_type='application/json')
@@ -240,28 +240,6 @@ class TestPromotionServer(unittest.TestCase):
         data = json.loads(resp.data)
         query_item = data[0]
         self.assertEqual(query_item['product_id'], 9527)
-		
-    def test_query_promotion_list_by_product_id(self):
-        """ Query Promotions by Product id """
-        resp = self.app.get('/promotions', query_string='product_id=9527')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(resp.data), 0)
-        self.assertIn('9527', resp.data)
-        self.assertNotIn('9526', resp.data)
-        data = json.loads(resp.data)
-        query_item = data[0]
-        self.assertEqual(query_item['name'], '20%OFF')
-		
-    def test_query_promotion_list_by_discount_ratio(self):
-        """ Query Promotions by Discount ratio """
-        resp = self.app.get('/promotions', query_string='discount_ratio=0.8')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(resp.data), 0)
-        self.assertIn('0.8', resp.data)
-        self.assertNotIn('0.2', resp.data)
-        data = json.loads(resp.data)
-        query_item = data[0]
-        self.assertEqual(query_item['product_id'], 9527)
 
     def test_redeem_promotions(self):
         """ Redeem a promotion """
@@ -272,28 +250,6 @@ class TestPromotionServer(unittest.TestCase):
             resp = self.app.get('/promotions/{}'.format(promotion.promotion_id))
             new_json = json.loads(resp.data)
             self.assertEqual(new_json['counter'], i)
-
-    # def test_redeem_promotions_concurrent(self):
-    #     """ Redeem a promotion concurrently """
-    #     resp = self.app.get('/promotions/1')
-    #     original_json = json.loads(resp.data)
-    #     # Launch a number of threads to test the serializablity of the action.
-    #     num_threads = 1000
-    #     threads = [
-    #         threading.Thread(
-    #             target=self.app.put,
-    #             args=('/promotions/1/redeem',)
-    #         ) for _ in xrange(num_threads)]
-    #     [t.start() for t in threads]
-    #     [t.join() for t in threads]
-    #
-    #     resp = self.app.get('/promotions/1')
-    #     new_json = json.loads(resp.data)
-    #     self.assertEqual(new_json['counter'], num_threads)
-    #     self.assertEqual(new_json['name'], original_json['name'])
-    #     self.assertEqual(new_json['product_id'], original_json['product_id'])
-    #     self.assertEqual(new_json['discount_ratio'], original_json['discount_ratio'])
-
 
     def test_redeem_promotions_not_fount(self):
         """ Redeem a promotion with invalid id """

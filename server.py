@@ -78,8 +78,8 @@ def not_found(error):
 
 
 @app.errorhandler(405)
-def method_not_allowed(error):
-    """ Handles unsuppoted HTTP methods with 405_METHOD_NOT_ALLOWED """
+def method_not_supported(error):
+    """ Handles unsuppoted HTTP methods with 405_METHOD_NOT_SUPPORTED """
     message = error.message or str(error)
     app.logger.info(message)
     return jsonify(status=405, error='Method not Allowed', message=message), 405
@@ -223,13 +223,12 @@ def redeem_promotions(promotion_id):
 
     This endpoint will increment the counter of a Promotion by 1.
     """
-    Promotion.redeem_promotion(promotion_id)
-    # promotion = Promotion.find(promotion_id)
-    # if not promotion:
-    #     raise NotFound("Promotion with id '{}' was not found.".format(promotion_id))
-    # promotion.counter = promotion.counter + 1
-    # promotion.save()
-    return make_response("", status.HTTP_200_OK)
+    promotion = Promotion.find(promotion_id)
+    if not promotion:
+        raise NotFound("Promotion with id '{}' was not found.".format(promotion_id))
+    promotion.counter = promotion.counter + 1
+    promotion.save()
+    return make_response(jsonify(promotion.serialize()), status.HTTP_200_OK)
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
