@@ -6,15 +6,34 @@ The promotions resource is a representation of a special promotion or sale that 
 
 To Run, clone the repo
 
+
+```
 git clone https://github.com/DevOps2018-Promotions/promotions.git
+```
+
+```
 cd promotions
+```
 
-//If running in Windows, open Vagrantfile and comment out
- #config.vm.network "private_network", ip: "192.168.33.10"
-//Otherwise you will get error, "VBoxManage.exe: error: Could not find Host Interface Networking driver! Please reinstall"
+If running in Windows, open Vagrantfile and comment out
 
+
+ *#config.vm.network "private_network", ip: "192.168.33.10"*
+
+
+Otherwise you will get error, "VBoxManage.exe: error: Could not find Host Interface Networking driver! Please reinstall"
+
+```
 vagrant up
-//If running in Windows, you might get a prompt from Windows Defender to allow Ruby to run. Click Allow access.
+```
 
+If running in Windows, you might get a prompt from Windows Defender to allow Ruby to run. Click Allow access.
+
+
+```
 vagrant ssh
+```
+
+```
 cd /vagrant
+```
