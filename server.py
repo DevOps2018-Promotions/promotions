@@ -124,12 +124,10 @@ def list_promotions():
     name = request.args.get('name')
     product_id = request.args.get('product_id')
     discount_ratio = request.args.get('discount_ratio')
-    if promotion_id:
-        promotions = Promotion.find_by_category(promotion_id)
-    elif name:
+    if name:
         promotions = Promotion.find_by_name(name)
     elif product_id:
-        promotions = Promotion.find_by_name(product_id)
+        promotions = Promotion.find_by_product_id(product_id)
     elif discount_ratio:
         promotions = Promotion.find_by_discount_ratio(discount_ratio)
     else:
