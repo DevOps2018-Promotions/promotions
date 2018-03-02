@@ -243,8 +243,9 @@ class TestPromotions(unittest.TestCase):
         promotion = Promotion.find(1)
         self.assertEqual(promotion.counter, 0)
         Promotion.redeem_promotion(1)
-        promotion = Promotion.find(1)
         self.assertEqual(promotion.counter, 1)
+        Promotion.redeem_promotion(1)
+        self.assertEqual(promotion.counter, 2)
 
     def test_redeem_promotion_bad_data(self):
         """ Redeem a Promoion with bad data """
