@@ -62,6 +62,7 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(promotion.promotion_id, None)
         self.assertEqual(promotion.name, "20%OFF")
         self.assertEqual(promotion.product_id, 9527)
+        self.assertIsNone(promotion.counter)
 
     def test_add_a_promotion(self):
         """ Create a promotion and add it to the database """
@@ -73,6 +74,7 @@ class TestPromotions(unittest.TestCase):
         promotion.save()
         # Asert that it was assigned an id and shows up in the database
         self.assertEqual(promotion.promotion_id, 1)
+        self.assertEqual(promotion.counter, 0)
         promotions = Promotion.all()
         self.assertEqual(len(promotions), 1)
 
@@ -115,6 +117,8 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(data['name'], "20%OFF")
         self.assertIn('product_id', data)
         self.assertEqual(data['product_id'], 9527)
+        self.assertIn('counter', data)
+        self.assertIsNone(data['counter'])
 
     def test_deserialize_a_promotion(self):
         """ Test deserialization of a Promotion """
@@ -203,7 +207,28 @@ class TestPromotions(unittest.TestCase):
         promotions = Promotion.find_by_name("20%OFF")
         self.assertEqual(promotions[0].product_id, 9527)
         self.assertEqual(promotions[0].name, "20%OFF")
-		
+
+    def test_find_or_404(self):
+        """ Find promotion or 404 """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        promotion = Promotion.find_or_404(1)
+        self.assertIsNotNone(promotion)
+        self.assertEqual(promotion.promotion_id, 1)
+        self.assertEqual(promotion.name, "20%OFF")
+        self.assertEqual(promotion.product_id, 9527)
+        self.assertEqual(promotion.discount_ratio, 0.8)
+        self.assertEqual(promotion.counter, 0)
+
+    def test_find_or_404_404(self):
+        """ Find promotion or 404 expecting 404 """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        try:
+            promotion = Promotion.find_or_404(2)
+            # Should not reach beyond this line.
+            self.assertIsNone(promotion)
+        except:
+            pass
+
     def test_find_by_discount_ratio(self):
         """ Find a Promotion by Discount ratio """
         Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
@@ -212,6 +237,20 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(promotions[0].product_id, 9527)
         self.assertEqual(promotions[0].name, "20%OFF")
 
+    def test_redeem_promotion(self):
+        """ Redeem a Promoion """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        promotion = Promotion.find(1)
+        self.assertEqual(promotion.counter, 0)
+        Promotion.redeem_promotion(1)
+        self.assertEqual(promotion.counter, 1)
+        Promotion.redeem_promotion(1)
+        self.assertEqual(promotion.counter, 2)
+
+    def test_redeem_promotion_bad_data(self):
+        """ Redeem a Promoion with bad data """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=0.8).save()
+        self.assertRaises(DataValidationError, Promotion.redeem_promotion, "a")
 
 ######################################################################
 #   M A I N
