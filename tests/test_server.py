@@ -27,6 +27,7 @@ import json
 import logging
 from flask_api import status    # HTTP Status Codes
 from mock import MagicMock, patch
+import threading
 
 from models import Promotion, DataValidationError, db
 import server
@@ -271,6 +272,22 @@ class TestPromotionServer(unittest.TestCase):
             resp = self.app.get('/promotions/{}'.format(promotion.promotion_id))
             new_json = json.loads(resp.data)
             self.assertEqual(new_json['counter'], i)
+
+    def test_redeem_promotions_concurrent(self):
+        """ Redeem a promotion concurrently"""
+        number_threads = 1000
+        threads = [
+            threading.Thread(
+                target=self.app.put,
+                args=('/promotions/1/redeem',))
+            for _ in xrange(number_threads)
+        ]
+        [th.start() for th in threads]
+        [th.join() for th in threads]
+
+        resp = self.app.get('/promotions/1')
+        new_json = json.loads(resp.data)
+        self.assertEqual(new_json['counter'], number_threads)
 
     def test_redeem_promotions_not_fount(self):
         """ Redeem a promotion with invalid id """
