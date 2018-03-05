@@ -267,7 +267,7 @@ class TestPromotionServer(unittest.TestCase):
         """ Redeem a promotion """
         for i in xrange(1, 20):
             promotion = Promotion.find_by_name('50%OFF')[0]
-            resp = self.app.put('/promotions/{}/redeem'.format(promotion.promotion_id))
+            resp = self.app.post('/promotions/{}/redeem'.format(promotion.promotion_id))
             self.assertEqual(resp.status_code, status.HTTP_200_OK)
             resp = self.app.get('/promotions/{}'.format(promotion.promotion_id))
             new_json = json.loads(resp.data)
@@ -278,7 +278,7 @@ class TestPromotionServer(unittest.TestCase):
         number_threads = 1000
         threads = [
             threading.Thread(
-                target=self.app.put,
+                target=self.app.post,
                 args=('/promotions/1/redeem',))
             for _ in xrange(number_threads)
         ]
@@ -291,17 +291,19 @@ class TestPromotionServer(unittest.TestCase):
 
     def test_redeem_promotions_not_fount(self):
         """ Redeem a promotion with invalid id """
-        resp = self.app.put('/promotions/3/redeem')
+        resp = self.app.post('/promotions/3/redeem')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_redeem_promotions_method_not_suported(self):
         """ Redeem a promotion with the wrong method """
         promotion = Promotion.find_by_name('50%OFF')[0]
-        resp = self.app.put('/promotions/{}/redeem'.format(promotion.promotion_id))
+        resp = self.app.post('/promotions/{}/redeem'.format(promotion.promotion_id))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         resp = self.app.get('/promotions/{}/redeem'.format(promotion.promotion_id))
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        resp = self.app.post('/promotions/{}/redeem'.format(promotion.promotion_id))
+        resp = self.app.put('/promotions/{}/redeem'.format(promotion.promotion_id))
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        resp = self.app.delete('/promotions/{}/redeem'.format(promotion.promotion_id))
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @patch('server.Promotion.find_by_name')

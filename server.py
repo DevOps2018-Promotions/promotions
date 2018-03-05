@@ -216,7 +216,7 @@ def delete_promotions(promotion_id):
 ######################################################################
 # REDEEM A PROMOTION
 ######################################################################
-@app.route('/promotions/<int:promotion_id>/redeem', methods=['PUT'])
+@app.route('/promotions/<int:promotion_id>/redeem', methods=['POST'])
 def redeem_promotions(promotion_id):
     """
     Redeem a Promotion
