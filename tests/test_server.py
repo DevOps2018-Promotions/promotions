@@ -239,6 +239,16 @@ class TestPromotionServer(unittest.TestCase):
         new_count = self.get_promotion_count()
         self.assertEqual(new_count, promotion_count)
 
+    def test_delete_promotion_wrong_id_type(self):
+        """ Delete a Promotion with wrong id type """
+        # save the current number of promotions for later comparison
+        promotion_count = self.get_promotion_count()
+        resp = self.app.delete('/promotions/{}'.format("a"),
+                               content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        new_count = self.get_promotion_count()
+        self.assertEqual(new_count, promotion_count)
+
     def test_query_promotion_list_by_name(self):
         """ Query Promotions by Name """
         resp = self.app.get('/promotions', query_string='name=20%OFF')
