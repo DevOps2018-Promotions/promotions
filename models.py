@@ -28,6 +28,7 @@ product_id (integer) - the id of the product associated with the promotion
 discount_ratio (float) - the discount ratio
 """
 import logging
+import threading
 from flask_sqlalchemy import SQLAlchemy
 
 # Create the SQLAlchemy object to be initialized later in init_db()
@@ -57,6 +58,8 @@ class Promotion(db.Model):
     counter = db.Column(db.Integer)
     # start_date = db.Column(db.DateTime)
     # end_date = db.Column(db.DateTime)
+
+    redeem_lock = threading.Lock()  # Lock for redeem action.
 
     def __repr__(self):
         return '<Promotion %r>' % self.name
@@ -173,13 +176,18 @@ class Promotion(db.Model):
 
     @staticmethod
     def redeem_promotion(promotion_id):
-        """ Redeem a Promotions by it's ID. Not thread-safe!!! """
-        # TODO: Make it thread-safe
+        """ Redeem a Promotions by it's ID. Thread Safe. """
         if not isinstance(promotion_id, int):
             raise DataValidationError('Invalid promotion: body of request contained bad or no data')
-        # Make sure the promotion exists.
-        Promotion.find_or_404(promotion_id)
-        db.session.query(Promotion).filter_by(
-            promotion_id=promotion_id).update(
-                {'counter': Promotion.counter + 1})
-        db.session.commit()
+        # Grab the lock before increment.
+        # This guarantees correctness at the cost of throughput.
+        # As a starting point, it should be acceptable.
+        # TODO: Looking for concurrency guarantees from the database.
+        #       If that doesn't work out, shard the lock by promotion_id.
+        with Promotion.redeem_lock:
+            Promotion.logger.info('Redeem promotion %s ...', promotion_id)
+            # If the promotion doesn't exist, 404 will be raised.
+            promotion = Promotion.find_or_404(promotion_id)
+            promotion.counter = promotion.counter + 1
+            db.session.commit()
+        return promotion

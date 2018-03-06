@@ -216,19 +216,17 @@ def delete_promotions(promotion_id):
 ######################################################################
 # REDEEM A PROMOTION
 ######################################################################
-@app.route('/promotions/<int:promotion_id>/redeem', methods=['PUT'])
+@app.route('/promotions/<int:promotion_id>/redeem', methods=['POST'])
 def redeem_promotions(promotion_id):
     """
     Redeem a Promotion
 
     This endpoint will increment the counter of a Promotion by 1.
     """
-    promotion = Promotion.find(promotion_id)
-    if not promotion:
-        raise NotFound("Promotion with id '{}' was not found.".format(promotion_id))
-    promotion.counter = promotion.counter + 1
-    promotion.save()
-    return make_response(jsonify(promotion.serialize()), status.HTTP_200_OK)
+    promotion = Promotion.redeem_promotion(promotion_id)
+    return make_response(
+        jsonify(promotion.serialize()),
+        status.HTTP_200_OK)
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
