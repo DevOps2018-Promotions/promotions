@@ -42,19 +42,19 @@ The `content-type` of the http request we accept is `application/json`.
 
 #### HTTP Request Types
 Our server allows the following operations
-- **CREATE**: Create a promotion entry. The database will internally assign an id for it.
+- **CREATE**: Create a promotion entry. The database will internally assign an id for it.  
   `POST http://localhost:5000/promotions`
-- **READ**: Read a promotion entry by it's id.
+- **READ**: Read a promotion entry by it's id.  
   `GET http://localhost:5000/promotions/<int:promotion_id>`
-- **LIST ALL**: List all the promotions registered in the database.
+- **LIST ALL**: List all the promotions registered in the database.  
   `GET http://localhost:5000/promotions`
-- **QUERY**: Query some promotion enties by single condition.
+- **QUERY**: Query some promotion enties by single condition.  
   `GET http://localhost:5000/promotions?<query-string>`
-- **UPDATE**: Update the fields of a promotion using its id.
+- **UPDATE**: Update the fields of a promotion using its id.  
   `PUT http://localhost:5000/promotions/<int:promotion_id>`
-- **DELETE**: Delete a promotion by its id.
+- **DELETE**: Delete a promotion by its id.  
   `DELETE http://localhost:5000/promotions/<int:promotion_id>`
-- **REDEEM** (ACTION, not RESTful): Increment the counter for a promotion.
+- **REDEEM** (ACTION, not RESTful): Increment the counter for a promotion.  
   `POST http://localhost:5000/promotions/<int:promotion_id>/redeem`
 
 #### HTTP Request Args
@@ -62,6 +62,6 @@ Our server allows the following operations
 - `<str:name>`: After creation, it can be modified by `PUT`.
 - `<int:product_id>`: After creation, it can be modified by `PUT`.
 - `<float:discount_ratio>`: After creation, it can be modified by `PUT`.
-- `<int:counter>`: Incremented on `PUT http://localhost:5000/promotions/<int:promotion_id>/redeem`. The field is associated with the `promotion_id`, and will persist after **UPDATE**s.
+- `<int:counter>`: Incremented on `POST http://localhost:5000/promotions/<int:promotion_id>/redeem`. The field is associated with the `promotion_id`, and will persist after **UPDATE**s.
 
   More comming soon.
