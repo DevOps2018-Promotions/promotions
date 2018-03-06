@@ -229,6 +229,16 @@ class TestPromotionServer(unittest.TestCase):
         new_count = self.get_promotion_count()
         self.assertEqual(new_count, promotion_count - 1)
 
+    def test_delete_promotion_not_found(self):
+        """ Delete a Promotion thats not found """
+        # save the current number of promotions for later comparison
+        promotion_count = self.get_promotion_count()
+        resp = self.app.delete('/promotions/{}'.format(0),
+                               content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        new_count = self.get_promotion_count()
+        self.assertEqual(new_count, promotion_count)
+
     def test_query_promotion_list_by_name(self):
         """ Query Promotions by Name """
         resp = self.app.get('/promotions', query_string='name=20%OFF')
