@@ -51,4 +51,25 @@ Vagrant.configure(2) do |config|
     sudo pip install -r requirements.txt
   SHELL
 
+  ######################################################################
+  # Add MySQL docker container
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+  #Prepare MySQL data share
+    sudo mkdir -p /var/lib/mysql/data
+    sudo chown ubuntu:ubuntu /var/lib/mysql/data
+  SHELL
+
+  config.vm.provision "docker" do |d|
+    d.pull_images "mysql"
+    d.run "mysql",
+      args: "--restart=always -d --name mysql -p 3306:3306 -v /var/lib/mysql/data:/data -e MYSQL_ROOT_PASSWORD=9527"
+  end
+
+  # Create data table after Docker is running
+  config.vm.provision "shell", inline: <<-SHELL
+    cd /vagrant
+    python create_table.py
+  SHELL
+
 end
