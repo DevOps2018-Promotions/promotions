@@ -42,6 +42,7 @@ app = Flask(__name__)
 
 # We'll just use SQLite here so we don't need an external database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/development.db'
+# app.config['SQLALCHEMY_DATABASE_URL'] = 'mysql://root:9527@localhost/Promotion'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'please, tell nobody... Shhhh'
 app.config['LOGGING_LEVEL'] = logging.INFO
