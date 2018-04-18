@@ -4,7 +4,6 @@ Flask-SQLAlchemy==2.1
 SQLAlchemy==1.1.5
 pylint
 flake8
-PyMySQL==0.7.11
 
 # Testing
 mock==2.0.0
