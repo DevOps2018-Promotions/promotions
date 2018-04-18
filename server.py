@@ -209,9 +209,7 @@ def delete_promotions(promotion_id):
     This endpoint will delete a Promotion based the id specified in the path
     """
     promotion = Promotion.find(promotion_id)
-    if not promotion:
-        raise NotFound("Promotion with id '{}' was not found.".format(promotion_id))
-    else:
+    if promotion:
         promotion.delete()
     return make_response('', status.HTTP_204_NO_CONTENT)
 

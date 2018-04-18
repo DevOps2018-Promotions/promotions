@@ -236,7 +236,7 @@ class TestPromotionServer(unittest.TestCase):
         promotion_count = self.get_promotion_count()
         resp = self.app.delete('/promotions/{}'.format(0),
                                content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         new_count = self.get_promotion_count()
         self.assertEqual(new_count, promotion_count)
 
