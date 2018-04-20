@@ -2,8 +2,20 @@ language: python
 python:
   - "2.7"
 
+sudo: required
+
+addons:
+  mariadb: '10.0'
+
+before_install:
+  - sudo mysql -e "use mysql; update user set authentication_string=PASSWORD('passw0rd') where User='root'; update user set plugin='mysql_native_password';FLUSH PRIVILEGES;"
+  - sudo service mysql restart
+
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install: "pip install -qr requirements.txt"
+
+before_script:
+  - python manage.py test
 
 # commands to run tests
 script:

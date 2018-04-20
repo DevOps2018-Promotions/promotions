@@ -40,7 +40,7 @@ class TestPromotions(unittest.TestCase):
         """ These run once per Test suite """
         app.debug = False
         # Set up the test database
-        if not DATABASE_URI:
+        if DATABASE_URI:
             app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 
     @classmethod
