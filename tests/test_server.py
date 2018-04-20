@@ -29,10 +29,11 @@ from flask_api import status    # HTTP Status Codes
 from mock import MagicMock, patch
 import threading
 
-from models import Promotion, DataValidationError, db
-import server
+from app.models import Promotion, DataValidationError
+from app import server, db
 
-DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///db/test.db')
+DATABASE_URI = 'mysql+pymysql://root:passw0rd@localhost:3306/test'
+DATABASE_URI = os.getenv('DATABASE_URI', DATABASE_URI)
 
 ######################################################################
 #  T E S T   C A S E S
@@ -48,7 +49,8 @@ class TestPromotionServer(unittest.TestCase):
         server.app.debug = False
         server.initialize_logging(logging.INFO)
         # Set up the test database
-        server.app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+        if DATABASE_URI:
+            server.app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 
     @classmethod
     def tearDownClass(cls):
@@ -59,8 +61,8 @@ class TestPromotionServer(unittest.TestCase):
         server.init_db()
         db.drop_all()    # clean up the last tests
         db.create_all()  # create new tables
-        Promotion(name='20%OFF', product_id=9527, discount_ratio=0.8).save()
-        Promotion(name='50%OFF', product_id=26668, discount_ratio=0.5).save()
+        Promotion(name='20%OFF', product_id=9527, discount_ratio=80).save()
+        Promotion(name='50%OFF', product_id=26668, discount_ratio=50).save()
         self.app = server.app.test_client()
 
     def tearDown(self):
@@ -145,7 +147,7 @@ class TestPromotionServer(unittest.TestCase):
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
-        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 0.1}
+        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 10}
         data = json.dumps(new_promotion)
         resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
                             content_type='application/json')
@@ -156,13 +158,13 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(new_json['promotion_id'], promotion_id)
         self.assertEqual(new_json['name'], '90%OFF')
         self.assertEqual(new_json['product_id'], 2609)
-        self.assertEqual(new_json['discount_ratio'], 0.1)
+        self.assertEqual(new_json['discount_ratio'], 10)
 
     def test_update_promotion_promotion_id_not_found(self):
         """ Update a non-existing Promotion """
         promotion_count = self.get_promotion_count()
         promotion_id = 999
-        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 0.1}
+        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 10}
         data = json.dumps(new_promotion)
         resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
                             content_type='application/json')
@@ -175,7 +177,7 @@ class TestPromotionServer(unittest.TestCase):
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
-        new_promotion = "{'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 0.1}"
+        new_promotion = "{'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 10}"
         data = json.dumps(new_promotion)
         resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
                             content_type='application/plain')
@@ -184,14 +186,14 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(promotion_count, new_promotion_count)
         self.assertEqual(promotion.name, "50%OFF")
         self.assertEqual(promotion.product_id, 26668)
-        self.assertEqual(promotion.discount_ratio, 0.5)
+        self.assertEqual(promotion.discount_ratio, 50)
 
     def test_update_promotion_bad_request_wrong_value_type(self):
         """ Update an existing Promotion with wrong data type"""
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
-        new_promotion = {'name': '90%OFF', 'product_id': '2609', 'discount_ratio': 0.1}
+        new_promotion = {'name': '90%OFF', 'product_id': '2609', 'discount_ratio': 10}
         data = json.dumps(new_promotion)
         resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
                             content_type='application/json')
@@ -200,14 +202,14 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(promotion_count, new_promotion_count)
         self.assertEqual(promotion.name, "50%OFF")
         self.assertEqual(promotion.product_id, 26668)
-        self.assertEqual(promotion.discount_ratio, 0.5)
+        self.assertEqual(promotion.discount_ratio, 50)
 
     def test_update_promotion_bad_request_value_out_of_range(self):
         """ Update an existing Promotion with wrong value"""
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
-        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 2}
+        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 200}
         data = json.dumps(new_promotion)
         resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
                             content_type='application/json')
@@ -216,7 +218,7 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual(promotion_count, new_promotion_count)
         self.assertEqual(promotion.name, "50%OFF")
         self.assertEqual(promotion.product_id, 26668)
-        self.assertEqual(promotion.discount_ratio, 0.5)
+        self.assertEqual(promotion.discount_ratio, 50)
 
     def test_delete_promotion(self):
         """ Delete a Promotion """
@@ -274,13 +276,13 @@ class TestPromotionServer(unittest.TestCase):
 
     def test_query_promotion_list_by_discount_ratio(self):
         """ Query Promotions by Discount ratio """
-        resp = self.app.get('/promotions', query_string='discount_ratio=0.8')
+        resp = self.app.get('/promotions', query_string='discount_ratio=80')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(resp.data), 0)
-        self.assertIn('0.8', resp.data)
-        self.assertNotIn('0.2', resp.data)
+
         data = json.loads(resp.data)
+        self.assertEqual(len(data), 1)
         query_item = data[0]
+        self.assertEqual(80, query_item['discount_ratio'])
         self.assertEqual(query_item['product_id'], 9527)
 
     def test_redeem_promotions(self):
@@ -292,22 +294,6 @@ class TestPromotionServer(unittest.TestCase):
             resp = self.app.get('/promotions/{}'.format(promotion.promotion_id))
             new_json = json.loads(resp.data)
             self.assertEqual(new_json['counter'], i)
-
-    def test_redeem_promotions_concurrent(self):
-        """ Redeem a promotion concurrently"""
-        number_threads = 1000
-        threads = [
-            threading.Thread(
-                target=self.app.post,
-                args=('/promotions/1/redeem',))
-            for _ in xrange(number_threads)
-        ]
-        [th.start() for th in threads]
-        [th.join() for th in threads]
-
-        resp = self.app.get('/promotions/1')
-        new_json = json.loads(resp.data)
-        self.assertEqual(new_json['counter'], number_threads)
 
     def test_redeem_promotions_not_fount(self):
         """ Redeem a promotion with invalid id """
@@ -326,14 +312,14 @@ class TestPromotionServer(unittest.TestCase):
         resp = self.app.delete('/promotions/{}/redeem'.format(promotion.promotion_id))
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @patch('server.Promotion.find_by_name')
+    @patch('app.server.Promotion.find_by_name')
     def test_bad_request(self, bad_request_mock):
         """ Test a Bad Request error from Find By Name """
         bad_request_mock.side_effect = DataValidationError()
         resp = self.app.get('/promotions', query_string='name=20%OFF')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch('server.Promotion.find_by_name')
+    @patch('app.server.Promotion.find_by_name')
     def test_mock_search_data(self, promotion_find_mock):
         """ Test showing how to mock data """
         promotion_find_mock.return_value = [MagicMock(serialize=lambda: {'name': '20%OFF'})]

@@ -30,10 +30,7 @@ discount_ratio (float) - the discount ratio
 import logging
 import threading
 from flask_sqlalchemy import SQLAlchemy
-
-# Create the SQLAlchemy object to be initialized later in init_db()
-db = SQLAlchemy()
-
+from . import db
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
@@ -48,21 +45,18 @@ class Promotion(db.Model):
     from us by SQLAlchemy's object relational mappings (ORM)
     """
     logger = logging.getLogger(__name__)
-    app = None
 
     # Table Schema
     promotion_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
     product_id = db.Column(db.Integer)
-    discount_ratio = db.Column(db.Float)
+    discount_ratio = db.Column(db.Integer)
     counter = db.Column(db.Integer)
     # start_date = db.Column(db.DateTime)
     # end_date = db.Column(db.DateTime)
 
-    redeem_lock = threading.Lock()  # Lock for redeem action.
-
     def __repr__(self):
-        return '<Promotion %r>' % self.name
+        return '<Promotion %r, %r, %r>' % (self.name, self.product_id, self.discount_ratio)
 
     def save(self):
         """
@@ -98,10 +92,10 @@ class Promotion(db.Model):
         try:
             new_name = "" + data['name']
             new_product_id = 0 + data['product_id']
-            new_discount_ratio = 0.0 + data['discount_ratio']
-            if new_discount_ratio < 0 or new_discount_ratio > 1:
+            new_discount_ratio = 0 + data['discount_ratio']
+            if new_discount_ratio < 0 or new_discount_ratio > 100:
                 raise DataValidationError('Invalid promotion: discount_ratio out of range'\
-                                          'expecting value between 0 to 1')
+                                          'expecting value between 0 to 100')
             self.name = new_name
             self.product_id = new_product_id
             self.discount_ratio = new_discount_ratio
@@ -115,13 +109,9 @@ class Promotion(db.Model):
         return self
 
     @staticmethod
-    def init_db(app):
+    def init_db():
         """ Initializes the database session """
         Promotion.logger.info('Initializing database')
-        Promotion.app = app
-        # This is where we initialize SQLAlchemy from the Flask app
-        db.init_app(app)
-        app.app_context().push()
         db.create_all()  # make our sqlalchemy tables
 
     @staticmethod
@@ -171,7 +161,7 @@ class Promotion(db.Model):
         Args:
             discount_ratio (Float): product id of the Promotions you want to match
         """
-        Promotion.logger.info('Processing product_id query for %s ...', discount_ratio)
+        Promotion.logger.info('Processing product_id query for %r ...', discount_ratio)
         return Promotion.query.filter(Promotion.discount_ratio == discount_ratio)
 
     @staticmethod
@@ -179,15 +169,9 @@ class Promotion(db.Model):
         """ Redeem a Promotions by it's ID. Thread Safe. """
         if not isinstance(promotion_id, int):
             raise DataValidationError('Invalid promotion: body of request contained bad or no data')
-        # Grab the lock before increment.
-        # This guarantees correctness at the cost of throughput.
-        # As a starting point, it should be acceptable.
-        # TODO: Looking for concurrency guarantees from the database.
-        #       If that doesn't work out, shard the lock by promotion_id.
-        with Promotion.redeem_lock:
-            Promotion.logger.info('Redeem promotion %s ...', promotion_id)
-            # If the promotion doesn't exist, 404 will be raised.
-            promotion = Promotion.find_or_404(promotion_id)
-            promotion.counter = promotion.counter + 1
-            db.session.commit()
+        Promotion.logger.info('Redeem promotion %s ...', promotion_id)
+        # If the promotion doesn't exist, 404 will be raised.
+        promotion = Promotion.find_or_404(promotion_id)
+        promotion.counter = promotion.counter + 1
+        db.session.commit()
         return promotion

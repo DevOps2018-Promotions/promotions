@@ -31,11 +31,11 @@ Vagrant.configure(2) do |config|
   if File.exists?(File.expand_path("~/.ssh/id_rsa"))
     config.vm.provision "file", source: "~/.ssh/id_rsa", destination: "~/.ssh/id_rsa"
   end
-  
+
   # Change the permission of files and directories
   # so that nosetests runs without extra arguments.
   config.vm.synced_folder ".", "/vagrant", mount_options: ["dmode=775,fmode=664"]
-  
+
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
@@ -59,28 +59,33 @@ Vagrant.configure(2) do |config|
     sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
     # Install app dependencies
     cd /vagrant
-    sudo pip install -r requirements.txt
+    sudo pip install -qr requirements.txt
   SHELL
 
   ######################################################################
   # Add MySQL docker container
   ######################################################################
   config.vm.provision "shell", inline: <<-SHELL
-  #Prepare MySQL data share
-    sudo mkdir -p /var/lib/mysql/data
-    sudo chown ubuntu:ubuntu /var/lib/mysql/data
+    # Prepare MySQL data share
+    sudo mkdir -p /var/lib/mysql
+    sudo chown vagrant:vagrant /var/lib/mysql
   SHELL
-
+  # Add MySQL docker container
   config.vm.provision "docker" do |d|
-    d.pull_images "mysql"
-    d.run "mysql",
-      args: "--restart=always -d --name mysql -p 3306:3306 -v /var/lib/mysql/data:/data -e MYSQL_ROOT_PASSWORD=9527"
+    d.pull_images "mariadb"
+    d.run "mariadb",
+      args: "--restart=always -d --name mariadb -p 3306:3306 -v /var/lib/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=passw0rd"
   end
 
-  # Create data table after Docker is running
+  # Create the database after Docker is running
   config.vm.provision "shell", inline: <<-SHELL
+    # Wait for mariadb to come up
+    echo "Waiting 20 seconds for mariadb to start..."
+    sleep 20
     cd /vagrant
-    python create_table.py
+    python manage.py development
+    python manage.py test
+    cd
   SHELL
 
 end

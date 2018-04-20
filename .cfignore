@@ -1,13 +1,15 @@
 # Local environment
+.env
 .DS_Store
-Thumbs.db
+
+# Virtual Environment files
+venv/
 
 # Vagrant
 .vagrant
 
-# database files
-db/*
-!db/.keep
+# Ignore database files
+db/*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -53,7 +55,6 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-tests/*.xml
 *,cover
 .hypothesis/
 
