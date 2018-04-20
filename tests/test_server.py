@@ -32,8 +32,8 @@ import threading
 from app.models import Promotion, DataValidationError
 from app import server, db
 
-DATABASE_URI = 'mysql+pymysql://root:passw0rd@localhost:3306/test'
-DATABASE_URI = os.getenv('DATABASE_URI', DATABASE_URI)
+# DATABASE_URI = 'mysql+pymysql://root:passw0rd@localhost:3306/test'
+DATABASE_URI = os.getenv('DATABASE_URI', None)
 
 ######################################################################
 #  T E S T   C A S E S
