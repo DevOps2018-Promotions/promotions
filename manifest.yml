@@ -9,6 +9,7 @@ applications:
   domain: mybluemix.net
   path: .
   disk_quota: 512M
+  command: python run.py
   buildpack: python_buildpack
   services:
   - PromotionDB
