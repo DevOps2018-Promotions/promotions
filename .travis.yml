@@ -16,6 +16,7 @@ install: "pip install -qr requirements.txt"
 
 before_script:
   - python manage.py test
+  - python manage.py development
 
 # commands to run tests
 script:
