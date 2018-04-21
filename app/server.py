@@ -90,10 +90,7 @@ def internal_server_error(error):
 @app.route('/')
 def index():
     """ Root URL response """
-    # return app.send_static_file('index.html')
-    return jsonify(name='Promotion RESTful API Service',
-                   version='1.0',
-                   paths=url_for('list_promotions', _external=True)), status.HTTP_200_OK
+    return app.send_static_file('index.html')
 
 ######################################################################
 # LIST ALL PROMOTIONS

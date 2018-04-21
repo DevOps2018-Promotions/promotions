@@ -17,10 +17,13 @@ install: "pip install -qr requirements.txt"
 before_script:
   - python manage.py test
   - python manage.py development
+  - python run.py &
+  - sleep 3
 
 # commands to run tests
 script:
   - nosetests
+  - behave
 
 after_success:
   - codecov
