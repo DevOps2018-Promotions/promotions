@@ -97,6 +97,24 @@ class TestPromotions(unittest.TestCase):
         self.assertEqual(promotions[0].product_id, 9528)
         self.assertEqual(promotions[0].discount_ratio, 50)
 
+    def test_partial_update_an_promotion(self):
+        """ Partial update a Promotion """
+        promotion = Promotion(name="20%OFF", product_id=9527, discount_ratio=80)
+        promotion.save()
+        self.assertEqual(promotion.promotion_id, 1)
+        # Change it an save it
+        promotion.name = "BUY1GET1FREE"
+        promotion.discount_ratio = 50
+        promotion.save()
+        self.assertEqual(promotion.promotion_id, 1)
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        promotions = Promotion.all()
+        self.assertEqual(len(promotions), 1)
+        self.assertEqual(promotions[0].name, "BUY1GET1FREE")
+        self.assertEqual(promotions[0].product_id, 9527)
+        self.assertEqual(promotions[0].discount_ratio, 50)
+
     def test_delete_a_promotion(self):
         """ Delete a Promotion """
         promotion = Promotion(name="20%OFF", product_id=9527, discount_ratio=80)

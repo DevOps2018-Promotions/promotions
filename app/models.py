@@ -108,6 +108,46 @@ class Promotion(db.Model):
                                       'bad or no data')
         return self
 
+    def deserialize_partial(self, data):
+        """
+        Deserializes a partial Promotion from a dictionary, only used for partial update
+
+        Args:
+            data (dict): A dictionary containing the partial Promotion data
+        """
+        if not isinstance(data, dict):
+            raise DataValidationError('Invalid promotion: body of request contained bad or no data')
+        try:
+            count = 0
+            if 'name' in data:
+                new_name = "" + data['name']
+                count = count + 1
+            if 'product_id' in data:
+                new_product_id = 0 + data['product_id']
+                count = count + 1
+                
+            if 'discount_ratio' in data:
+                new_discount_ratio = 0 + data['discount_ratio']
+                if new_discount_ratio < 0 or new_discount_ratio > 100:
+                    raise DataValidationError('Invalid promotion: discount_ratio out of range'\
+                                          'expecting value between 0 to 100')
+                count = count + 1
+
+            if count == 0:
+                raise DataValidationError('Invalid promotion: missing update data')    
+
+            if 'name' in data:
+                self.name = new_name    
+            if 'product_id' in data:
+                self.product_id = new_product_id
+            if 'discount_ratio' in data:
+                self.discount_ratio = new_discount_ratio
+                
+        except TypeError as error:
+            raise DataValidationError('Invalid promotion: body of request contained' \
+                                      'bad or no data')
+        return self
+
     @staticmethod
     def init_db():
         """ Initializes the database session """

@@ -147,7 +147,7 @@ class TestPromotionServer(unittest.TestCase):
         promotion_count = self.get_promotion_count()
         promotion = Promotion.find_by_name('50%OFF')[0]
         promotion_id = promotion.promotion_id
-        new_promotion = {'name': '90%OFF', 'product_id': 2609, 'discount_ratio': 10}
+        new_promotion = {'name': '90%OFF', 'product_id': 9527, 'discount_ratio': 10}
         data = json.dumps(new_promotion)
         resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
                             content_type='application/json')
@@ -157,8 +157,42 @@ class TestPromotionServer(unittest.TestCase):
         new_json = json.loads(resp.data)
         self.assertEqual(new_json['promotion_id'], promotion_id)
         self.assertEqual(new_json['name'], '90%OFF')
-        self.assertEqual(new_json['product_id'], 2609)
+        self.assertEqual(new_json['product_id'], 9527)
         self.assertEqual(new_json['discount_ratio'], 10)
+
+    def test_partial_update_promotion(self):
+        """ Partial update an existing Promotion """
+        promotion_count = self.get_promotion_count()
+        promotion = Promotion.find_by_name('50%OFF')[0]
+        promotion_id = promotion.promotion_id
+        new_promotion = {'name': '90%OFF', 'discount_ratio': 10}
+        data = json.dumps(new_promotion)
+        resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
+                            content_type='application/json')
+        new_promotion_count = self.get_promotion_count()
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(promotion_count, new_promotion_count)
+        new_json = json.loads(resp.data)
+        self.assertEqual(new_json['promotion_id'], promotion_id)
+        self.assertEqual(new_json['name'], '90%OFF')
+        self.assertEqual(new_json['product_id'], 26668)
+        self.assertEqual(new_json['discount_ratio'], 10)
+
+    def test_partial_update_promotion_no_content(self):
+        """ Partial update an existing Promotion with no update content """
+        promotion_count = self.get_promotion_count()
+        promotion = Promotion.find_by_name('50%OFF')[0]
+        promotion_id = promotion.promotion_id
+        new_promotion = {}
+        data = json.dumps(new_promotion)
+        resp = self.app.put('/promotions/{}'.format(promotion_id), data=data,
+                            content_type='application/json')
+        new_promotion_count = self.get_promotion_count()
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(promotion_count, new_promotion_count)
+        self.assertEqual(promotion.name, "50%OFF")
+        self.assertEqual(promotion.product_id, 26668)
+        self.assertEqual(promotion.discount_ratio, 50)
 
     def test_update_promotion_promotion_id_not_found(self):
         """ Update a non-existing Promotion """
