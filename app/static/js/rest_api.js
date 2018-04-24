@@ -91,11 +91,16 @@ $(function () {
         var product_id = $("#promotion_product_id").val();
         var discount_ratio = $("#promotion_discount_ratio").val();
 
-        var data = {
-            "name": name,
-            "product_id": parseInt(product_id),
-            "discount_ratio": parseInt(discount_ratio)
-        };
+        var data = {}
+        if (name) {
+            data.name = name
+        }
+        if  (product_id) {
+            data.product_id = parseInt(product_id)
+        }
+        if  (discount_ratio) {
+            data.discount_ratio = parseInt(discount_ratio)
+        }
 
         var ajax = $.ajax({
                 type: "PUT",
