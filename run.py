@@ -13,9 +13,9 @@
 # limitations under the License.
 
 """
-Pet Service Runner
+Promotion Service Runner
 
-Start the Pet Service and initializes logging
+Start the Promotion Service and initializes logging
 """
 
 import os
@@ -30,7 +30,7 @@ PORT = os.getenv('PORT', '5000')
 ######################################################################
 if __name__ == "__main__":
     print "************************************************************"
-    print "        P E T   R E S T   A P I   S E R V I C E "
+    print "    P R O M O T I O N   R E S T   A P I   S E R V I C E     "
     print "************************************************************"
     server.initialize_logging()
     server.init_db()
