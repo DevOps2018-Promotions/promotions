@@ -359,6 +359,14 @@ class TestPromotionServer(unittest.TestCase):
         resp = self.app.get('/promotions', query_string='name=20%OFF')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_reset(self):
+        """ Reset the Database """
+        resp = self.app.delete('/promotions/reset')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        resp = self.app.get('/promotions')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = json.loads(resp.data)
+        self.assertEqual(len(data), 0)
 
 ######################################################################
 # Utility functions

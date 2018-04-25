@@ -5,6 +5,13 @@
 Welcome to NYU DevOps Spring 2018 Promotion team!
 The promotions resource is a representation of a special promotion or sale that is running against a product or perhaps the entire store. Some examples are "buy 1 get 1 free", "20% off" etc.
 
+## Accessing the service
+Our promotion service is hosted on IBM Bluemix with an automated CI/CD DevOps pipeline. The base URLs of the service are
+- dev: [`nyu-promotion-service-s18.mybluemix.net`](http://nyu-promotion-service-s18.mybluemix.net/)
+- prod: [`nyu-promotion-service-s18-prod.mybluemix.net`](http://nyu-promotion-service-s18-prod.mybluemix.net/)
+
+You can access the services through the simple UI we built at the base URL, or through [API calls as described below](#interact-with-the-server).
+
 ## Launch the server
 
 Clone the repo
@@ -61,7 +68,7 @@ Our server allows the following operations
 - `<int:promotion_id>`: Set automatically on creation. No one is supposed to modity this field.
 - `<str:name>`: After creation, it can be modified by `PUT`.
 - `<int:product_id>`: After creation, it can be modified by `PUT`.
-- `<float:discount_ratio>`: After creation, it can be modified by `PUT`.
+- `<int:discount_ratio>`: After creation, it can be modified by `PUT`.
 - `<int:counter>`: Incremented on `POST http://localhost:5000/promotions/<int:promotion_id>/redeem`. The field is associated with the `promotion_id`, and will persist after **UPDATE**s.
 
   More comming soon.

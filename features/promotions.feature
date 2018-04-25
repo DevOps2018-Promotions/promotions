@@ -77,6 +77,7 @@ Scenario: Redeem a Promotion
     Then I should see the message "Success"
     And I should see "5" in the results
 
+
 ##################################
 #              List              #
 ##################################
