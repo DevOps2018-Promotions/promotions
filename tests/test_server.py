@@ -328,7 +328,7 @@ class TestPromotionServer(unittest.TestCase):
             new_json = json.loads(resp.data)
             self.assertEqual(new_json['counter'], i)
 
-    def test_redeem_promotions_not_fount(self):
+    def test_redeem_promotions_not_found(self):
         """ Redeem a promotion with invalid id """
         resp = self.app.post('/promotions/3/redeem')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
