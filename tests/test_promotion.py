@@ -283,6 +283,13 @@ class TestPromotions(unittest.TestCase):
         Promotion(name="20%OFF", product_id=9527, discount_ratio=80).save()
         self.assertRaises(DataValidationError, Promotion.redeem_promotion, "a")
 
+    def test_remove_all(self):
+        """ Remove all entries """
+        Promotion(name="20%OFF", product_id=9527, discount_ratio=80).save()
+        Promotion(name="50%OFF", product_id=26668).save()
+        Promotion.remove_all()
+        promotions = Promotion.all()
+        self.assertEqual(len(promotions), 0)
 ######################################################################
 #   M A I N
 ######################################################################

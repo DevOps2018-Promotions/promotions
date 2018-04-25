@@ -11,7 +11,7 @@ from compare import expect, ensure
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from app import server, db
+from app import server
 
 WAIT_SECONDS = 30
 BASE_URL = getenv('BASE_URL', 'http://localhost:5000/')
@@ -20,8 +20,8 @@ BASE_URL = getenv('BASE_URL', 'http://localhost:5000/')
 def step_impl(context):
     """ Delete all Promotions and load new ones """
     headers = {'Content-Type': 'application/json'}
-    db.drop_all()
-    db.create_all()
+    context.resp = requests.delete(context.base_url + '/promotions/reset', headers=headers)
+    expect(context.resp.status_code).to_equal(204)
     create_url = context.base_url + '/promotions'
     for row in context.table:
         data = {
