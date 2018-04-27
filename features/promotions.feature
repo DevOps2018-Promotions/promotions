@@ -52,6 +52,35 @@ Scenario: Create a Promotion with Bad Discount_Ratio
     And I should not see "404 Success Found"
     And I should not see "NewPromotionToCreate" in the results
 
+
+##################################
+#             Delete             #
+##################################
+
+Scenario: Delete a Promotion
+    When I visit the "Home Page"
+    And I set the "Id" to "1"
+    When I press the "Delete" button
+    Then I should see the message "Promotion with ID [1] has been Deleted!"
+    And I should not see "404 Not Found"
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should not see "BlackFriday" in the results
+
+Scenario: Delete a Promotion That Id Not Found
+    When I visit the "Home Page"
+    And I set the "Id" to "100"
+    When I press the "Delete" button
+    Then I should see the message "Promotion with ID [100] has been Deleted!"
+    And I should not see "404 Not Found"
+
+Scenario: Delete a Promotion That Wrong Id Type
+    When I visit the "Home Page"
+    And I set the "Id" to "a"
+    When I press the "Delete" button
+    Then I should see the message "Server error!"
+    And I should not see "404 Not Found"
+
 ##################################
 #             Redeem             #
 ##################################
