@@ -26,6 +26,7 @@ $(function () {
     }
 
     function clear_list() {
+        $("#flash_message").empty();
         $("#search_results").empty();
     }
 
