@@ -32,6 +32,23 @@ app = Flask(__name__)
 app.config.from_object('config')
 #print('Database URI {}'.format(app.config['SQLALCHEMY_DATABASE_URI']))
 
+# Configure Swagger before initilaizing it
+app.config['SWAGGER'] = {
+    "swagger_version": "2.0",
+    "specs": [
+        {
+            "version": "1.0.0",
+            "title": "DevOps Swagger Pet App",
+            "description": "This is a sample server Petstore server.",
+            "endpoint": 'v1_spec',
+            "route": '/v1/spec'
+        }
+    ]
+}
+
+# Initialize Swagger after configuring it
+Swagger(app)
+
 # Initialize SQLAlchemy
 db = SQLAlchemy(app)
 
