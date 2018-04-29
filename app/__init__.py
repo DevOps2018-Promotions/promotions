@@ -21,6 +21,7 @@ This module contains the microservice code for
 """
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flasgger import Swagger
 
 # These next lines are positional:
 # 1) We need to create the Flask app
@@ -28,6 +29,24 @@ from flask_sqlalchemy import SQLAlchemy
 # 3) Then initialize SQLAlchemy after it has been configured
 
 app = Flask(__name__)
+
+# Configure Swagger before initilaizing it
+app.config['SWAGGER'] = {
+    "swagger_version": "2.0",
+    "specs": [
+        {
+            "version": "1.0.0",
+            "title": "DevOps Swagger Pet App",
+            "description": "This is a sample server Petstore server.",
+            "endpoint": 'v1_spec',
+            "route": '/v1/spec'
+        }
+    ]
+}
+
+# Initialize Swagger after configuring it
+Swagger(app)
+
 # Load the confguration
 app.config.from_object('config')
 #print('Database URI {}'.format(app.config['SQLALCHEMY_DATABASE_URI']))
