@@ -22,7 +22,6 @@ This module contains the microservice code for
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
-import os
 
 # These next lines are positional:
 # 1) We need to create the Flask app
