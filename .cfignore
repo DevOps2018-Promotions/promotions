@@ -1,6 +1,7 @@
 # Local environment
 .env
 .DS_Store
+.vscode
 
 # Virtual Environment files
 venv/

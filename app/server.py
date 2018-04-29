@@ -99,7 +99,49 @@ def index():
 
 @app.route('/promotions', methods=['GET'])
 def list_promotions():
-    """ Returns all of the Promotions """
+    r""" Returns all of the Promotions
+
+    Search the promotions in the database.
+    <ul>
+    <li>Only the first non-empty field will be considered.</li>
+    <li>An empty query will result in a list of all promotion entries in the database</li>
+    </ul>
+    ---
+    tags:
+    - promotions
+    produces:
+    - application/json
+    parameters:
+    - name: name
+      in: query
+      description: name of the promotion
+      required: false
+      type: string
+    - name: product_id
+      in: query
+      description: product_id for the promotion
+      required: false
+      type: integer
+      minimum: 0
+      format: int32
+    - name: discount_ratio
+      in: query
+      description: discount ratio of the promotion
+      required: false
+      type: integer
+      maximum: 100.0
+      minimum: 0
+      format: int32
+    responses:
+      200:
+        description: search results matching criteria
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/ResponsePromotionObject'
+      400:
+        description: bad input parameter
+    """
     promotions = []
     promotion_id = request.args.get('promotion_id')
     name = request.args.get('name')
@@ -126,9 +168,27 @@ def list_promotions():
 @app.route('/promotions/<int:promotion_id>', methods=['GET'])
 def get_promotions(promotion_id):
     """
-    Retrieve a single Promotion
+    Retrieves a single Promotion
 
     This endpoint will return a Promotion based on it's id
+    ---
+    tags:
+    - promotions
+    parameters:
+    - name: promotion_id
+      in: path
+      description: Numeric ID of the promotion to get
+      required: true
+      type: integer
+    responses:
+      200:
+        description: promotion retrieved
+        schema:
+          $ref: '#/definitions/ResponsePromotionObject'
+      400:
+        description: invalid input, object invalid
+      404:
+        description: promotion not found, object invalid
     """
     promotion = Promotion.find(promotion_id)
     if not promotion:
@@ -145,7 +205,29 @@ def get_promotions(promotion_id):
 def create_promotions():
     """
     Creates a Promotion
+
     This endpoint will create a Promotion based the data in the body that is posted
+    ---
+    tags:
+    - promotions
+    consumes:
+    - application/json
+    produces:
+    - application/json
+    parameters:
+    - in: body
+      name: Promotion
+      description: Promotion entry to add
+      required: false
+      schema:
+        $ref: '#/definitions/PromotionObject'
+    responses:
+      201:
+        description: item created
+        schema:
+          $ref: '#/definitions/ResponsePromotionObject'
+      400:
+        description: invalid input, object invalid
     """
     check_content_type('application/json')
     promotion = Promotion()
@@ -165,9 +247,34 @@ def create_promotions():
 @app.route('/promotions/<int:promotion_id>', methods=['PUT'])
 def update_promotions(promotion_id):
     """
-    Update a Promotion
+    Updates a Promotion
 
-    This endpoint will update a Promotion based the body that is posted
+    It isn't necessary to fill in all three fields. Only the non-empty
+    fields will be updated. The empty fields will be left as it is.
+    ---
+    tags:
+    - promotions
+    parameters:
+    - name: promotion_id
+      in: path
+      description: Numeric ID of the promotion to get
+      required: true
+      type: integer
+    - in: body
+      name: Promotion
+      description: Promotion entry to update
+      required: false
+      schema:
+        $ref: '#/definitions/Promotion'
+    responses:
+      200:
+        description: promotion retrieved
+        schema:
+          $ref: '#/definitions/ResponsePromotionObject'
+      400:
+        description: invalid input, object invalid
+      404:
+        description: promotion not found, object invalid
     """
     check_content_type('application/json')
     promotion = Promotion.find(promotion_id)
@@ -185,9 +292,21 @@ def update_promotions(promotion_id):
 @app.route('/promotions/<int:promotion_id>', methods=['DELETE'])
 def delete_promotions(promotion_id):
     """
-    Delete a Promotion
+    Deletes a Promotion
 
     This endpoint will delete a Promotion based the id specified in the path
+    ---
+    tags:
+    - promotions
+    parameters:
+    - name: promotion_id
+      in: path
+      description: Numeric ID of the promotion to get
+      required: true
+      type: integer
+    responses:
+      204:
+        description: promotion deleted
     """
     promotion = Promotion.find(promotion_id)
     if promotion:
@@ -200,9 +319,25 @@ def delete_promotions(promotion_id):
 @app.route('/promotions/<int:promotion_id>/redeem', methods=['POST'])
 def redeem_promotions(promotion_id):
     """
-    Redeem a Promotion
+    Redeems a Promotion
 
     This endpoint will increment the counter of a Promotion by 1.
+    ---
+    tags:
+    - promotions
+    parameters:
+    - name: promotion_id
+      in: path
+      description: Numeric ID of the promotion to get
+      required: true
+      type: integer
+    responses:
+      200:
+        description: promotion redeemed
+        schema:
+          $ref: '#/definitions/ResponsePromotionObject'
+      404:
+        description: promotion not found, object invalid
     """
     promotion = Promotion.redeem_promotion(promotion_id)
     return make_response(
