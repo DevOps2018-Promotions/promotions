@@ -39,6 +39,7 @@ def step_impl(context):
     """ Make a call to the base URL """
     context.driver.get(context.base_url)
 
+
 @then(u'I should see "{message}" in the title')
 def step_impl(context, message):
     """ Check the document title for a message """
@@ -48,6 +49,7 @@ def step_impl(context, message):
 def step_impl(context, message):
     error_msg = "I should not see '%s' in '%s'" % (message, context.resp.text)
     ensure(message in context.resp.text, False, error_msg)
+
 
 @when(u'I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
@@ -98,6 +100,18 @@ def step_impl(context, message):
         )
     )
     expect(found).to_be(True)
+
+@then(u'I should not see the message "{message}"')
+def step_impl(context, message):
+    #element = context.driver.find_element_by_id('flash_message')
+    #expect(element.text).to_contain(message)
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'flash_message'),
+            message
+        )
+    )
+    expect(found).to_be(False)
 
 ##################################################################
 # This code works because of the following naming convention:

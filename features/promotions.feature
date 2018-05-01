@@ -15,6 +15,7 @@ Scenario: The server is running
     Then I should see "Promotion Demo REST Service" in the title
     And I should not see "404 Not Found"
 
+
 ##################################
 #             Create             #
 ##################################
@@ -38,7 +39,7 @@ Scenario: Create a Promotion with Bad Product_Id
     And I set the "Discount_Ratio" to "99"
     When I press the "Create" button
     Then I should see the message "Invalid promotion"
-    And I should not see "404 Success Found"
+    And I should not see "404 Not Found"
     And I should not see "NewPromotionToCreate" in the results
 
 Scenario: Create a Promotion with Bad Discount_Ratio
@@ -49,7 +50,7 @@ Scenario: Create a Promotion with Bad Discount_Ratio
     And I set the "Discount_Ratio" to "111"
     When I press the "Create" button
     Then I should see the message "Invalid promotion"
-    And I should not see "404 Success Found"
+    And I should not see "404 Not Found"
     And I should not see "NewPromotionToCreate" in the results
 
 
@@ -139,7 +140,7 @@ Scenario: Query Promotions by Product id
     And I should see "9999" in the results
     And I should not see "1831" in the results
 
-Scenario: Query Promotions by Product id
+Scenario: Query Promotions by Discount Ratio
     When I visit the "Home Page"
     And I set the "Discount_Ratio" to "74"
     And I press the "Search" button
@@ -218,3 +219,36 @@ Scenario: Update a Promotion with wrong value type
     And I press the "Retrieve" button
     Then I should see "9999" in the "Product_Id" field
     And I should not see "str" in the results
+
+##################################
+#             Read               #
+##################################
+
+Scenario: Retrive an existing Promotion by promotion ID
+    When I visit the "Home Page"
+    And I set the "Id" to "1"
+    And I press the "Retrieve" button
+    Then I should see "BlackFriday" in the "name" field
+    And I should see "9999" in the "Product_Id" field
+    And I should see "99" in the "discount_ratio" field
+    Then I should see the message "Success"
+
+Scenario: Retrive an non-existing Promotion by promotion ID
+    When I visit the "Home Page"
+    And I set the "Id" to "999"
+    And I press the "Retrieve" button
+    Then I should see the message "404 Not Found"
+
+Scenario: Retrive an Promotion attribute other than promotion ID
+    When I visit the "Home Page"
+    And I set the "Name" to "BlackFriday"
+    And I press the "Retrieve" button
+    Then I should see the message "404 Not Found"
+    When I visit the "Home Page"
+    And I set the "Product_ID" to "9999"
+    And I press the "Retrieve" button
+    Then I should see the message "404 Not Found"
+    When I visit the "Home Page"
+    And I set the "Discount_Ratio" to "80"
+    And I press the "Retrieve" button
+    Then I should see the message "404 Not Found"
