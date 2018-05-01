@@ -11,6 +11,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 SQLALCHEMY_DATABASE_URI = get_database_uri()
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 SQLALCHEMY_POOL_SIZE = 5
 SQLALCHEMY_POOL_TIMEOUT = 500
 SQLALCHEMY_POOL_RECYCLE = 300
