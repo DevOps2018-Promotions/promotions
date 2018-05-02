@@ -91,21 +91,15 @@ Scenario: Redeem a Promotion
     And I set the "Id" to "1"
     And I press the "Retrieve" button
     Then I should see "0" in the results
-    When I press the "Redeem" button
-    Then I should see the message "Success"
-    And I should see "1" in the results
-    When I press the "Redeem" button
-    Then I should see the message "Success"
-    And I should see "2" in the results
-    When I press the "Redeem" button
-    Then I should see the message "Success"
-    And I should see "3" in the results
-    When I press the "Redeem" button
-    Then I should see the message "Success"
-    And I should see "4" in the results
-    When I press the "Redeem" button
-    Then I should see the message "Success"
-    And I should see "5" in the results
+    When I press the "Clear" button
+    And I set the "Id" to "1"
+    And I press the "Redeem" button
+    Then I should see "1" in the results
+    And I should not see "0" in the results
+    When I press the "Clear" button
+    And I set the "Id" to "1"
+    And I press the "Redeem" button
+    Then I should see "2" in the results
 
 
 ##################################
@@ -160,13 +154,10 @@ Scenario: Update a Promotion with partial attribute
     When I change "Name" to "WhiteFriday"
     And I press the "Update" button
     Then I should see the message "Success"
-    When I set the "Id" to "1"
+    When I press the "Clear" button
+    And I set the "Id" to "1"
     And I press the "Retrieve" button
     Then I should see "WhiteFriday" in the "Name" field
-    When I press the "Clear" button
-    And I press the "Search" button
-    Then I should see "WhiteFriday" in the results
-    And I should not see "BlackFriday" in the results
 
 Scenario: Update a Promotion with full attributes
     When I visit the "Home Page"
@@ -178,19 +169,12 @@ Scenario: Update a Promotion with full attributes
     And I change "Discount_Ratio" to "88"
     And I press the "Update" button
     Then I should see the message "Success"
+    When I press the "Clear" button
     When I set the "Id" to "1"
     And I press the "Retrieve" button
     Then I should see "WhiteFriday" in the "Name" field
     And I should see "8888" in the "Product_Id" field
     And I should see "88" in the "Discount_Ratio" field
-    When I press the "Clear" button
-    And I press the "Search" button
-    Then I should see "WhiteFriday" in the results
-    And I should see "8888" in the results
-    And I should see "88" in the results
-    And I should not see "BlackFriday" in the results
-    And I should not see "9999" in the results
-    And I should not see "99" in the results
 
 Scenario: Update a Promotion with discount ratio out of range
     When I visit the "Home Page"
