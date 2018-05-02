@@ -43,7 +43,11 @@ def step_impl(context):
 @then(u'I should see "{message}" in the title')
 def step_impl(context, message):
     """ Check the document title for a message """
-    expect(context.driver.title).to_contain(message)
+    # expect(context.driver.title).to_contain(message)
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.title_contains(message)
+    )
+    expect(found).to_be(True)
 
 @then(u'I should not see "{message}"')
 def step_impl(context, message):
