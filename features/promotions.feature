@@ -97,15 +97,6 @@ Scenario: Redeem a Promotion
     When I press the "Redeem" button
     Then I should see the message "Success"
     And I should see "2" in the results
-    When I press the "Redeem" button
-    Then I should see the message "Success"
-    And I should see "3" in the results
-    When I press the "Redeem" button
-    Then I should see the message "Success"
-    And I should see "4" in the results
-    When I press the "Redeem" button
-    Then I should see the message "Success"
-    And I should see "5" in the results
 
 
 ##################################
